@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState } from "react";
 
 const STORAGE_KEY = "leetquest-user";
+const TOKEN_KEY = "authToken";
 
 const AuthContext = createContext(null);
 
@@ -10,8 +11,9 @@ const readStoredUser = () => {
     }
 
     const storedUser = window.localStorage.getItem(STORAGE_KEY);
+    const storedToken = window.localStorage.getItem(TOKEN_KEY);
 
-    if (!storedUser) {
+    if (!storedUser || !storedToken) {
         return null;
     }
 
@@ -27,12 +29,17 @@ export const AuthProvider = ({ children }) => {
 
     const login = (nextUser) => {
         setUser(nextUser);
+        // User object may contain token, store it separately for axios interceptor
+        if (nextUser.token) {
+            window.localStorage.setItem(TOKEN_KEY, nextUser.token);
+        }
         window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextUser));
     };
 
     const logout = () => {
         setUser(null);
         window.localStorage.removeItem(STORAGE_KEY);
+        window.localStorage.removeItem(TOKEN_KEY);
     };
 
     const value = {

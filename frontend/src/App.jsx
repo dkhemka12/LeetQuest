@@ -9,6 +9,7 @@ import Challenges from "./pages/Challenges";
 import Friends from "./pages/Friends";
 import Profile from "./pages/Profile";
 import MainLayout from "./layouts/MainLayout";
+import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
   return (
@@ -17,7 +18,13 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login mode="login" />} />
         <Route path="/register" element={<Login mode="register" />} />
-        <Route element={<MainLayout />}>
+        <Route
+          element={
+            <PrivateRoute>
+              <MainLayout />
+            </PrivateRoute>
+          }
+        >
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/challenges" element={<Challenges />} />

@@ -93,9 +93,10 @@ const LandingPage = () => {
                   Gamified LeetCode companion
                 </span>
                 <h1 className="max-w-3xl text-5xl font-bold tracking-tight text-text-main md:text-7xl">
-                  Turn LeetCode progress into a
+                  <pre></pre>
+                  Turn LeetCode progress into a 
                   <span className="bg-linear-to-r from-orange to-yellow bg-clip-text text-transparent">
-                    motivating streak engine
+                    <pre></pre>motivating streak engine
                   </span>
                 </h1>
               </motion.div>
