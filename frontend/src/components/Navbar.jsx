@@ -1,6 +1,5 @@
+import React from "react";
 import { Link, NavLink } from "react-router-dom";
-
-import { useAuth } from "../context/AuthContext";
 
 const navItemClass = ({ isActive }) =>
     [
@@ -9,8 +8,6 @@ const navItemClass = ({ isActive }) =>
     ].join(" ");
 
 const Navbar = () => {
-    const { isAuthenticated, logout } = useAuth();
-
     return (
         <header className="border-b border-border bg-dark/90 backdrop-blur">
             <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
@@ -34,23 +31,18 @@ const Navbar = () => {
                     <NavLink to="/profile" className={navItemClass}>
                         Profile
                     </NavLink>
-
-                    {isAuthenticated ? (
-                        <button
-                            type="button"
-                            onClick={logout}
-                            className="rounded-full border border-border px-4 py-2 text-sm font-medium text-text-main hover:bg-light-gray"
-                        >
-                            Log out
-                        </button>
-                    ) : (
-                        <Link
-                            to="/login"
-                            className="rounded-full border border-orange px-4 py-2 text-sm font-medium text-orange hover:bg-orange hover:text-dark"
-                        >
-                            Log in
-                        </Link>
-                    )}
+                    <Link
+                        to="/login"
+                        className="rounded-full border border-border px-4 py-2 text-sm font-medium text-text-main hover:bg-light-gray"
+                    >
+                        Log in
+                    </Link>
+                    <Link
+                        to="/register"
+                        className="rounded-full border border-orange px-4 py-2 text-sm font-medium text-orange hover:bg-orange hover:text-dark"
+                    >
+                        Create account
+                    </Link>
                 </nav>
             </div>
         </header>

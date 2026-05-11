@@ -1,134 +1,302 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import React from "react";
+import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+import FeatureCard from "../components/FeatureCard";
+
+const quickStats = [
+  { label: "Daily streaks", value: "1+", detail: "Track whether you solved at least one problem today." },
+  { label: "XP values", value: "10 / 25 / 50", detail: "Easy, medium, and hard problems each have a clear reward." },
+  { label: "Core surfaces", value: "Dashboard + Analytics", detail: "See what matters without jumping through extra screens." },
+];
+
+const featureItems = [
+  {
+    title: "Streak tracking",
+    description: "Keep a visible chain of your daily solving habits.",
+    icon: "🔥",
+  },
+  {
+    title: "XP and leveling",
+    description: "Turn solved problems into progress that feels tangible.",
+    icon: "⭐",
+  },
+  {
+    title: "Weak-topic insight",
+    description: "Spot areas like DP, Graphs, and Trees before interviews.",
+    icon: "📈",
+  },
+  {
+    title: "Friends and leaderboards",
+    description: "Compare progress with friends and stay accountable.",
+    icon: "👥",
+  },
+  {
+    title: "Challenges",
+    description: "Set topic-based targets with deadlines and winners.",
+    icon: "⚔️",
+  },
+  {
+    title: "LeetCode sync",
+    description: "Use public LeetCode data, never an in-app coding judge.",
+    icon: "🔗",
+  },
+];
+
+const workflowSteps = [
+  {
+    step: "01",
+    title: "Connect your username",
+    description: "Add your public LeetCode username so the app can sync progress.",
+  },
+  {
+    step: "02",
+    title: "Track the important signals",
+    description: "Watch your XP, streak, solved stats, and recent activity update.",
+  },
+  {
+    step: "03",
+    title: "Use the data to stay consistent",
+    description: "Lean on comparisons, badges, and analytics to keep solving.",
+  },
+];
 
 const LandingPage = () => {
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Navbar */}
-      <nav className="w-full flex justify-between items-center px-8 py-4 border-b border-border bg-dark-gray">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-md bg-orange flex items-center justify-center text-dark font-bold text-xl">L</div>
-          <span className="text-xl font-semibold tracking-wide">Leet<span className="text-orange">Quest</span></span>
-        </div>
-        <div className="flex gap-4">
-          <Link to="/login" className="px-4 py-2 text-sm font-medium hover:text-orange transition-colors">Sign In</Link>
-          <Link to="/register" className="px-4 py-2 text-sm font-medium bg-light-gray hover:bg-border rounded-md transition-colors">Create Account</Link>
-        </div>
-      </nav>
+    <div className="flex min-h-screen flex-col bg-dark text-text-main">
+      <Navbar />
 
-      {/* Hero Section */}
-      <main className="flex-grow flex items-center justify-center px-4 relative overflow-hidden">
-        {/* Background blobs */}
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-orange/10 rounded-full blur-[100px] pointer-events-none" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-green/10 rounded-full blur-[100px] pointer-events-none" />
+      <main className="flex-1 overflow-hidden">
+        <section className="relative overflow-hidden px-4 pb-12 pt-14 sm:px-6 lg:px-8 lg:pt-20">
+          <div className="absolute left-1/4 top-16 h-96 w-96 rounded-full bg-orange/10 blur-[120px] pointer-events-none" />
+          <div className="absolute right-0 top-1/3 h-80 w-80 rounded-full bg-green/10 blur-[120px] pointer-events-none" />
 
-        <div className="max-w-4xl w-full flex flex-col items-center text-center z-10 py-20">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6">
-              Level Up Your <br/>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange to-yellow">
-                Coding Journey
-              </span>
-            </h1>
-          </motion.div>
-          
-          <motion.p 
-            className="text-lg md:text-xl text-text-muted max-w-2xl mb-10"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            A motivational and productivity layer over LeetCode. Track your streaks, earn XP, unlock badges, and challenge your friends.
-          </motion.p>
-          
-          <motion.div 
-            className="flex gap-4"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-          >
-            <Link to="/register" className="px-8 py-3 bg-orange hover:bg-orange-hover text-dark font-semibold rounded-md transition-colors flex items-center gap-2">
-              Start Your Quest
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
-              </svg>
-            </Link>
-            <a href="#features" className="px-8 py-3 bg-light-gray hover:bg-border text-text-main font-medium rounded-md transition-colors">
-              Explore Features
-            </a>
-          </motion.div>
+          <div className="relative z-10 mx-auto grid max-w-7xl gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+            <div className="space-y-8">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="space-y-5"
+              >
+                <span className="inline-flex rounded-full border border-border bg-dark-gray px-4 py-2 text-xs uppercase tracking-[0.3em] text-text-muted">
+                  Gamified LeetCode companion
+                </span>
+                <h1 className="max-w-3xl text-5xl font-bold tracking-tight text-text-main md:text-7xl">
+                  Turn LeetCode progress into a
+                  <span className="bg-linear-to-r from-orange to-yellow bg-clip-text text-transparent">
+                    motivating streak engine
+                  </span>
+                </h1>
+              </motion.div>
 
-          <motion.div 
-            className="mt-20 w-full max-w-3xl"
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-          >
-            <div className="relative rounded-xl border border-border bg-dark-gray p-4 shadow-2xl">
-              <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-white/5 to-transparent rounded-xl pointer-events-none" />
-              <div className="flex items-center gap-2 mb-4 border-b border-border pb-3">
-                <div className="w-3 h-3 rounded-full bg-red"></div>
-                <div className="w-3 h-3 rounded-full bg-yellow"></div>
-                <div className="w-3 h-3 rounded-full bg-green"></div>
+              <motion.p
+                className="max-w-2xl text-lg leading-8 text-text-muted md:text-xl"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+              >
+                LeetQuest turns your public LeetCode activity into XP, streaks, badges,
+                analytics, and friendly competition. It is not a coding editor or judge.
+                It is the layer that keeps you consistent.
+              </motion.p>
+
+              <motion.div
+                className="flex flex-wrap gap-4"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.35 }}
+              >
+                <Link
+                  to="/register"
+                  className="inline-flex items-center justify-center rounded-md bg-orange px-8 py-3 font-semibold text-dark transition-colors hover:bg-orange-hover"
+                >
+                  Start your quest
+                </Link>
+                <a
+                  href="#features"
+                  className="inline-flex items-center justify-center rounded-md bg-light-gray px-8 py-3 font-medium text-text-main transition-colors hover:bg-border"
+                >
+                  Explore features
+                </a>
+              </motion.div>
+
+              <motion.div
+                className="grid gap-4 sm:grid-cols-3"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.5 }}
+              >
+                {quickStats.map((stat) => (
+                  <div
+                    key={stat.label}
+                    className="rounded-2xl border border-border bg-dark-gray p-4 shadow-lg"
+                  >
+                    <p className="text-xs uppercase tracking-[0.3em] text-text-muted">
+                      {stat.label}
+                    </p>
+                    <p className="mt-3 text-2xl font-bold text-text-main">{stat.value}</p>
+                    <p className="mt-2 text-sm leading-6 text-text-muted">{stat.detail}</p>
+                  </div>
+                ))}
+              </motion.div>
+            </div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 32 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.2 }}
+              className="relative"
+            >
+              <div className="rounded-4xl border border-border bg-dark-gray/90 p-5 shadow-2xl">
+                <div className="absolute inset-0 rounded-4xl bg-linear-to-b from-white/5 to-transparent pointer-events-none" />
+                <div className="relative space-y-5">
+                  <div className="flex items-center justify-between border-b border-border pb-4">
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.3em] text-text-muted">
+                        Live preview
+                      </p>
+                      <h2 className="mt-2 text-2xl font-semibold text-text-main">
+                        Your progress at a glance
+                      </h2>
+                    </div>
+                    <div className="rounded-full border border-green/30 bg-green/10 px-3 py-1 text-sm text-green">
+                      Synced today
+                    </div>
+                  </div>
+
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="rounded-2xl border border-border bg-dark p-4">
+                      <p className="text-sm text-text-muted">Streak</p>
+                      <div className="mt-3 flex items-end justify-between">
+                        <p className="text-5xl font-bold text-yellow">12</p>
+                        <span className="rounded-full bg-light-gray px-3 py-2 text-xl">🔥</span>
+                      </div>
+                      <p className="mt-3 text-sm text-text-muted">One solved problem keeps the chain alive.</p>
+                    </div>
+
+                    <div className="rounded-2xl border border-border bg-dark p-4">
+                      <p className="text-sm text-text-muted">XP</p>
+                      <div className="mt-3 flex items-end justify-between">
+                        <p className="text-5xl font-bold text-orange">840</p>
+                        <span className="rounded-full bg-light-gray px-3 py-2 text-xl">⭐</span>
+                      </div>
+                      <p className="mt-3 text-sm text-text-muted">Medium and hard problems push your level up faster.</p>
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl border border-border bg-dark p-4">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm text-text-muted">Weak topics</p>
+                      <span className="text-xs uppercase tracking-[0.3em] text-text-muted">Focus list</span>
+                    </div>
+                    <div className="mt-4 space-y-3">
+                      {[
+                        ["Dynamic Programming", "High priority"],
+                        ["Graphs", "Needs practice"],
+                        ["Binary Trees", "Steady"],
+                      ].map(([label, note]) => (
+                        <div key={label} className="flex items-center justify-between rounded-xl bg-light-gray px-4 py-3">
+                          <span className="font-medium text-text-main">{label}</span>
+                          <span className="text-sm text-text-muted">{note}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="flex flex-col gap-3 text-left">
-                <div className="h-4 w-3/4 bg-light-gray rounded animate-pulse"></div>
-                <div className="h-4 w-1/2 bg-light-gray rounded animate-pulse"></div>
-                <div className="h-4 w-5/6 bg-light-gray rounded animate-pulse"></div>
+            </motion.div>
+          </div>
+        </section>
+
+        <section id="features" className="border-t border-border bg-dark-gray px-4 py-16 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <div className="mb-8 max-w-3xl space-y-3">
+              <p className="text-sm uppercase tracking-[0.3em] text-text-muted">Why it helps</p>
+              <h2 className="text-3xl font-bold text-text-main md:text-4xl">
+                Everything you need to stay consistent.
+              </h2>
+              <p className="text-text-muted">
+                The app is intentionally narrow: it tracks progress, shows useful trends,
+                and makes practice feel rewarding without pretending to be a coding judge.
+              </p>
+            </div>
+
+            <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3">
+              {featureItems.map((feature, index) => (
+                <FeatureCard key={feature.title} delay={index * 0.08} {...feature} />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="px-4 py-16 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-7xl rounded-4xl border border-border bg-dark-gray p-8 md:p-10">
+            <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
+              <div className="space-y-4">
+                <p className="text-sm uppercase tracking-[0.3em] text-text-muted">
+                  How it works
+                </p>
+                <h2 className="text-3xl font-bold text-text-main md:text-4xl">
+                  A simple flow with no extra friction.
+                </h2>
+                <p className="text-text-muted">
+                  Connect once, sync public data, and use the dashboards to keep yourself on track.
+                </p>
+              </div>
+
+              <div className="grid gap-4">
+                {workflowSteps.map((step) => (
+                  <div key={step.step} className="rounded-2xl border border-border bg-dark p-5">
+                    <div className="flex items-start gap-4">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-orange text-sm font-bold text-dark">
+                        {step.step}
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-text-main">{step.title}</h3>
+                        <p className="mt-2 text-sm leading-6 text-text-muted">{step.description}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
-          </motion.div>
-        </div>
+          </div>
+        </section>
+
+        <section className="px-4 pb-16 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-7xl rounded-4xl border border-orange/20 bg-linear-to-r from-dark-gray to-dark p-8 text-center md:p-12">
+            <p className="text-sm uppercase tracking-[0.3em] text-text-muted">
+              Ready to start
+            </p>
+            <h2 className="mt-4 text-3xl font-bold text-text-main md:text-5xl">
+              Build momentum before your next interview.
+            </h2>
+            <p className="mx-auto mt-4 max-w-2xl text-text-muted">
+              Create your account, connect your LeetCode username, and let the platform turn daily practice into visible progress.
+            </p>
+            <div className="mt-8 flex flex-wrap justify-center gap-4">
+              <Link
+                to="/register"
+                className="rounded-md bg-orange px-8 py-3 font-semibold text-dark transition-colors hover:bg-orange-hover"
+              >
+                Create account
+              </Link>
+              <Link
+                to="/login"
+                className="rounded-md border border-border px-8 py-3 font-medium text-text-main transition-colors hover:bg-light-gray"
+              >
+                Log in
+              </Link>
+            </div>
+          </div>
+        </section>
       </main>
 
-      {/* Features Preview Section */}
-      <section id="features" className="py-20 px-8 bg-dark-gray border-t border-border relative z-10">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <FeatureCard 
-              title="Track Streaks"
-              description="Stay consistent. Monitor your daily progress and never break the chain."
-              icon="🔥"
-              delay={0.1}
-            />
-            <FeatureCard 
-              title="Earn XP & Level Up"
-              description="Gain experience points for every problem solved. Watch your level grow."
-              icon="⭐"
-              delay={0.2}
-            />
-            <FeatureCard 
-              title="Challenge Friends"
-              description="Compete in private leaderboards and set custom challenges to stay motivated."
-              icon="⚔️"
-              delay={0.3}
-            />
-          </div>
-        </div>
-      </section>
+      <Footer />
     </div>
-  );
-};
-
-const FeatureCard = ({ title, description, icon, delay }) => {
-  return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5, delay }}
-      whileHover={{ y: -5 }}
-      className="p-6 bg-dark border border-border rounded-xl flex flex-col items-start hover:border-orange/50 transition-colors"
-    >
-      <div className="text-4xl mb-4">{icon}</div>
-      <h3 className="text-xl font-semibold mb-2">{title}</h3>
-      <p className="text-text-muted">{description}</p>
-    </motion.div>
   );
 };
 

@@ -1,21 +1,37 @@
+import React from "react";
 import XPCard from "../components/XPCard";
 import StreakCard from "../components/StreakCard";
 import ProgressChart from "../components/ProgressChart";
+import PageHeader from "../components/PageHeader";
+import StatCard from "../components/StatCard";
+import Leaderboard from "../components/Leaderboard";
+import EmptyState from "../components/EmptyState";
 
 const Dashboard = () => {
     return (
         <section className="space-y-6">
-            <div>
-                <p className="text-sm uppercase tracking-[0.3em] text-text-muted">Overview</p>
-                <h1 className="mt-2 text-3xl font-bold text-text-main">Dashboard skeleton</h1>
-            </div>
+            <PageHeader
+                eyebrow="Overview"
+                title="Dashboard skeleton"
+                description="This is the first pass of the dashboard layout. We will plug live stats, streak data, and LeetCode sync results into these cards next."
+            />
 
-            <div className="grid gap-6 lg:grid-cols-2">
+            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+                <StatCard label="Solved" value="0" detail="Problems synced from LeetCode" tone="green" />
+                <StatCard label="Consistency" value="0%" detail="Your activity momentum" tone="yellow" />
                 <XPCard xp={0} level={1} />
                 <StreakCard streak={0} />
             </div>
 
-            <ProgressChart />
+            <div className="grid gap-6 lg:grid-cols-2">
+                <ProgressChart />
+                <Leaderboard />
+            </div>
+
+            <EmptyState
+                title="No activity synced yet"
+                description="Once a LeetCode username is connected, this area can show recent submissions, weak topics, and badges."
+            />
         </section>
     );
 };

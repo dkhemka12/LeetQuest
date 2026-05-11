@@ -1,4 +1,7 @@
+import React from "react";
 import { Link } from "react-router-dom";
+
+import PageHeader from "../components/PageHeader";
 
 const Login = ({ mode = "login" }) => {
     const isRegister = mode === "register";
@@ -6,17 +9,15 @@ const Login = ({ mode = "login" }) => {
     return (
         <section className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-lg items-center px-4 py-12">
             <div className="w-full rounded-3xl border border-border bg-dark-gray p-8 shadow-2xl">
-                <p className="text-sm uppercase tracking-[0.3em] text-text-muted">
-                    {isRegister ? "Create account" : "Welcome back"}
-                </p>
-                <h1 className="mt-3 text-3xl font-bold text-text-main">
-                    {isRegister ? "Join LeetQuest" : "Log in to LeetQuest"}
-                </h1>
-                <p className="mt-2 text-sm text-text-muted">
-                    {isRegister
-                        ? "Start tracking streaks, XP, and progress."
-                        : "Continue your gamified LeetCode journey."}
-                </p>
+                <PageHeader
+                    eyebrow={isRegister ? "Create account" : "Welcome back"}
+                    title={isRegister ? "Join LeetQuest" : "Log in to LeetQuest"}
+                    description={
+                        isRegister
+                            ? "Start tracking streaks, XP, and progress."
+                            : "Continue your gamified LeetCode journey."
+                    }
+                />
 
                 <form className="mt-8 space-y-4">
                     {isRegister && (

@@ -1,13 +1,30 @@
+import React from "react";
+import PageHeader from "../components/PageHeader";
+import FriendCard from "../components/FriendCard";
+import EmptyState from "../components/EmptyState";
+
 const Friends = () => {
+    const friends = [];
+
     return (
         <section className="space-y-6">
-            <div>
-                <p className="text-sm uppercase tracking-[0.3em] text-text-muted">Friends</p>
-                <h1 className="mt-2 text-3xl font-bold text-text-main">Friends skeleton</h1>
-            </div>
-            <div className="rounded-2xl border border-border bg-dark-gray p-6 text-text-muted">
-                Compare streaks, XP, and activity with friends here.
-            </div>
+            <PageHeader
+                eyebrow="Friends"
+                title="Friends skeleton"
+                description="Compare XP, streaks, and activity with other users here."
+            />
+            {friends.length > 0 ? (
+                <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                    {friends.map((friend) => (
+                        <FriendCard key={friend.username} friend={friend} />
+                    ))}
+                </div>
+            ) : (
+                <EmptyState
+                    title="No friends connected"
+                    description="Add friends once the friends system is ready to show comparisons here."
+                />
+            )}
         </section>
     );
 };

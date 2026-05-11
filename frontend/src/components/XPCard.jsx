@@ -1,3 +1,4 @@
+import React from "react";
 const XPCard = ({ xp = 0, level = 1 }) => {
     return (
         <article className="rounded-2xl border border-border bg-dark-gray p-6 shadow-lg">

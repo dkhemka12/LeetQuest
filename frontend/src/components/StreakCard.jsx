@@ -1,3 +1,4 @@
+import React from "react";
 const StreakCard = ({ streak = 0 }) => {
     return (
         <article className="rounded-2xl border border-border bg-dark-gray p-6 shadow-lg">
