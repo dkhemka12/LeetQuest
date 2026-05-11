@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+:root {
+  --color-lc-dark: #1a1a1a;
+  --color-lc-gray: #262626;
+  --color-lc-light-gray: #333333;
+  --color-lc-border: #3e3e3e;
+  --color-lc-text: #eff2f6;
+  --color-lc-text-muted: #8a8a8a;
+  --color-lc-orange: #ffa116;
+  --color-lc-orange-hover: #e08b12;
+  --color-lc-green: #2cbb5d;
+  --color-lc-yellow: #ffc01e;
+  --color-lc-red: #ef4743;
+}
+
+@theme {
+  --color-dark: var(--color-lc-dark);
+  --color-dark-gray: var(--color-lc-gray);
+  --color-light-gray: var(--color-lc-light-gray);
+  --color-border: var(--color-lc-border);
+  --color-text-main: var(--color-lc-text);
+  --color-text-muted: var(--color-lc-text-muted);
+  --color-orange: var(--color-lc-orange);
+  --color-orange-hover: var(--color-lc-orange-hover);
+  --color-green: var(--color-lc-green);
+  --color-yellow: var(--color-lc-yellow);
+  --color-red: var(--color-lc-red);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top, rgba(255, 161, 22, 0.16), transparent 35%),
+    linear-gradient(180deg, #111111 0%, #1a1a1a 100%);
+  color: var(--color-lc-text);
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
