@@ -1,6 +1,14 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import {
+  HiOutlineChartBar,
+  HiOutlineChatBubbleBottomCenterText,
+  HiOutlineLink,
+  HiOutlineTrophy,
+  HiOutlineUsers,
+  HiOutlineBolt,
+} from "react-icons/hi2";
 
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -16,32 +24,32 @@ const featureItems = [
   {
     title: "Streak tracking",
     description: "Keep a visible chain of your daily solving habits.",
-    icon: "🔥",
+    icon: <HiOutlineBolt className="text-3xl text-orange" />,
   },
   {
     title: "XP and leveling",
     description: "Turn solved problems into progress that feels tangible.",
-    icon: "⭐",
+    icon: <HiOutlineTrophy className="text-3xl text-yellow" />,
   },
   {
     title: "Weak-topic insight",
     description: "Spot areas like DP, Graphs, and Trees before interviews.",
-    icon: "📈",
+    icon: <HiOutlineChartBar className="text-3xl text-green" />,
   },
   {
     title: "Friends and leaderboards",
     description: "Compare progress with friends and stay accountable.",
-    icon: "👥",
+    icon: <HiOutlineUsers className="text-3xl text-text-main" />,
   },
   {
     title: "Challenges",
     description: "Set topic-based targets with deadlines and winners.",
-    icon: "⚔️",
+    icon: <HiOutlineChatBubbleBottomCenterText className="text-3xl text-text-main" />,
   },
   {
     title: "LeetCode sync",
     description: "Use public LeetCode data, never an in-app coding judge.",
-    icon: "🔗",
+    icon: <HiOutlineLink className="text-3xl text-text-main" />,
   },
 ];
 
@@ -172,7 +180,9 @@ const LandingPage = () => {
                       <p className="text-sm text-text-muted">Streak</p>
                       <div className="mt-3 flex items-end justify-between">
                         <p className="text-5xl font-bold text-yellow">12</p>
-                        <span className="rounded-full bg-light-gray px-3 py-2 text-xl">🔥</span>
+                        <span className="rounded-full border border-border bg-light-gray px-3 py-2 text-sm font-semibold tracking-[0.2em] text-text-main">
+                          ST
+                        </span>
                       </div>
                       <p className="mt-3 text-sm text-text-muted">One solved problem keeps the chain alive.</p>
                     </div>
@@ -181,7 +191,9 @@ const LandingPage = () => {
                       <p className="text-sm text-text-muted">XP</p>
                       <div className="mt-3 flex items-end justify-between">
                         <p className="text-5xl font-bold text-orange">840</p>
-                        <span className="rounded-full bg-light-gray px-3 py-2 text-xl">⭐</span>
+                        <span className="rounded-full border border-border bg-light-gray px-3 py-2 text-sm font-semibold tracking-[0.2em] text-text-main">
+                          XP
+                        </span>
                       </div>
                       <p className="mt-3 text-sm text-text-muted">Medium and hard problems push your level up faster.</p>
                     </div>
