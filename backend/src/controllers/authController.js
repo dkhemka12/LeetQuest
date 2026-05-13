@@ -1,6 +1,7 @@
-const User = require('../models/User');
-const generateToken = require('../utils/generateToken');
-const bcrypt = require('bcryptjs');
+const User = require("../models/User");
+const generateToken = require("../utils/generateToken");
+const bcrypt = require("bcryptjs");
+const { logActivity } = require("../services/activityService");
 
 // @desc    Register a new user
 // @route   POST /api/auth/register
@@ -12,7 +13,7 @@ const registerUser = async (req, res) => {
     const userExists = await User.findOne({ $or: [{ email }, { username }] });
 
     if (userExists) {
-      return res.status(400).json({ message: 'User already exists' });
+      return res.status(400).json({ message: "User already exists" });
     }
 
     // Hash password
@@ -23,23 +24,32 @@ const registerUser = async (req, res) => {
       username,
       email,
       password: hashedPassword,
-      leetcodeUsername: leetcodeUsername || '',
+      leetcodeUsername: leetcodeUsername || "",
     });
 
     if (user) {
+      // Non-blocking activity logging for analytics timeline.
+      await logActivity({
+        userId: user._id,
+        title: "Created account",
+        topic: "Auth",
+        difficulty: "Easy",
+      }).catch(() => null);
+
       res.status(201).json({
         _id: user._id,
         username: user.username,
         email: user.email,
         leetcodeUsername: user.leetcodeUsername,
+        isAdmin: user.isAdmin,
         token: generateToken(user._id),
       });
     } else {
-      res.status(400).json({ message: 'Invalid user data' });
+      res.status(400).json({ message: "Invalid user data" });
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -53,19 +63,36 @@ const loginUser = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (user && (await bcrypt.compare(password, user.password))) {
+      // Check if user is banned
+      if (user.isBanned) {
+        return res.status(403).json({
+          message: "Your account has been banned",
+          reason: user.bannedReason || "No reason provided",
+        });
+      }
+
+      // Non-blocking activity logging for analytics timeline.
+      await logActivity({
+        userId: user._id,
+        title: "Logged in",
+        topic: "Auth",
+        difficulty: "Easy",
+      }).catch(() => null);
+
       res.json({
         _id: user._id,
         username: user.username,
         email: user.email,
         leetcodeUsername: user.leetcodeUsername,
+        isAdmin: user.isAdmin,
         token: generateToken(user._id),
       });
     } else {
-      res.status(401).json({ message: 'Invalid email or password' });
+      res.status(401).json({ message: "Invalid email or password" });
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -74,16 +101,28 @@ const loginUser = async (req, res) => {
 // @access  Private
 const getUserProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).select('-password');
+    const user = await User.findById(req.user._id).select("-password");
 
     if (user) {
-      res.json(user);
+      res.json({
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        isAdmin: user.isAdmin,
+        isBanned: user.isBanned,
+        xp: user.xp,
+        level: user.level,
+        streak: user.streak,
+        leetcodeUsername: user.leetcodeUsername,
+        badges: user.badges,
+        friends: user.friends,
+      });
     } else {
-      res.status(404).json({ message: 'User not found' });
+      res.status(404).json({ message: "User not found" });
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: "Server error" });
   }
 };
 

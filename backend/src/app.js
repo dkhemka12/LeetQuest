@@ -6,6 +6,7 @@ const userRoutes = require("./routes/userRoutes");
 const leetcodeRoutes = require("./routes/leetcodeRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const challengeRoutes = require("./routes/challengeRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/leetcode", leetcodeRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/challenges", challengeRoutes);
+app.use("/api/admin", adminRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });

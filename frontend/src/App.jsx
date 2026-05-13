@@ -8,8 +8,10 @@ import Analytics from "./pages/Analytics";
 import Challenges from "./pages/Challenges";
 import Friends from "./pages/Friends";
 import Profile from "./pages/Profile";
+import Admin from "./pages/Admin";
 import MainLayout from "./layouts/MainLayout";
 import PrivateRoute from "./components/PrivateRoute";
+import AdminPrivateRoute from "./components/AdminPrivateRoute";
 
 function App() {
   return (
@@ -30,6 +32,16 @@ function App() {
           <Route path="/challenges" element={<Challenges />} />
           <Route path="/friends" element={<Friends />} />
           <Route path="/profile" element={<Profile />} />
+        </Route>
+        <Route
+          path="/admin"
+          element={
+            <AdminPrivateRoute>
+              <MainLayout />
+            </AdminPrivateRoute>
+          }
+        >
+          <Route path="" element={<Admin />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
