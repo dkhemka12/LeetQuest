@@ -57,9 +57,14 @@ const registerUser = async (req, res) => {
 
     if (user) {
       // Send OTP email
-      await sendOTPEmail(email, otp).catch((err) => {
-        console.error("Failed to send OTP:", err);
-      });
+      try {
+        await sendOTPEmail(email, otp);
+      } catch (emailErr) {
+        console.error(
+          "⚠️ OTP Email failed - check Gmail credentials:",
+          emailErr.message,
+        );
+      }
 
       res.status(201).json({
         message: "User registered. Please verify your email with the OTP sent.",
@@ -86,6 +91,15 @@ const loginUser = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (user && (await bcrypt.compare(password, user.password))) {
+      if (!user.emailVerified) {
+        return res.status(403).json({
+          message: "Please verify your email before logging in",
+          requiresVerification: true,
+          email: user.email,
+          userId: user._id,
+        });
+      }
+
       // Check if user is banned
       if (user.isBanned) {
         return res.status(403).json({

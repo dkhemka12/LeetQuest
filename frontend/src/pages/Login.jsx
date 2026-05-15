@@ -105,6 +105,11 @@ const Login = ({ mode = "login" }) => {
                             }),
                         300
                     );
+                } else {
+                    throw new Error(
+                        responseData.message ||
+                        "Registration failed. Please try again."
+                    );
                 }
             } else {
                 // Login flow

@@ -51,6 +51,7 @@ const VerifyOTP = () => {
 
         try {
             setLoading(true);
+            const response = await verifyOTP(userId, otp);
             const { token, ...userData } = response.data;
 
             // Log in the user
