@@ -2,13 +2,32 @@ const User = require("../models/User");
 const generateToken = require("../utils/generateToken");
 const bcrypt = require("bcryptjs");
 const { logActivity } = require("../services/activityService");
+const {
+  generateOTP,
+  sendOTPEmail,
+  sendPasswordResetEmail,
+} = require("../services/emailService");
+const crypto = require("crypto");
 
-// @desc    Register a new user
+const buildAuthResponse = (user) => ({
+  _id: user._id,
+  username: user.username,
+  email: user.email,
+  firstName: user.firstName || "",
+  lastName: user.lastName || "",
+  leetcodeUsername: user.leetcodeUsername,
+  isAdmin: user.isAdmin,
+  profileComplete: Boolean(user.firstName && user.lastName),
+  token: generateToken(user._id),
+});
+
+// @desc    Register a new user (step 1: create user with OTP)
 // @route   POST /api/auth/register
 // @access  Public
 const registerUser = async (req, res) => {
   try {
-    const { username, email, password, leetcodeUsername } = req.body;
+    const { username, email, password, leetcodeUsername, firstName, lastName } =
+      req.body;
 
     const userExists = await User.findOne({ $or: [{ email }, { username }] });
 
@@ -20,29 +39,33 @@ const registerUser = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    // Generate OTP
+    const otp = generateOTP();
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
     const user = await User.create({
       username,
       email,
       password: hashedPassword,
+      firstName: firstName || "",
+      lastName: lastName || "",
       leetcodeUsername: leetcodeUsername || "",
+      otpCode: otp,
+      otpExpiry: otpExpiry,
+      emailVerified: false,
     });
 
     if (user) {
-      // Non-blocking activity logging for analytics timeline.
-      await logActivity({
-        userId: user._id,
-        title: "Created account",
-        topic: "Auth",
-        difficulty: "Easy",
-      }).catch(() => null);
+      // Send OTP email
+      await sendOTPEmail(email, otp).catch((err) => {
+        console.error("Failed to send OTP:", err);
+      });
 
       res.status(201).json({
-        _id: user._id,
-        username: user.username,
+        message: "User registered. Please verify your email with the OTP sent.",
+        userId: user._id,
         email: user.email,
-        leetcodeUsername: user.leetcodeUsername,
-        isAdmin: user.isAdmin,
-        token: generateToken(user._id),
+        requiresVerification: true,
       });
     } else {
       res.status(400).json({ message: "Invalid user data" });
@@ -79,14 +102,7 @@ const loginUser = async (req, res) => {
         difficulty: "Easy",
       }).catch(() => null);
 
-      res.json({
-        _id: user._id,
-        username: user.username,
-        email: user.email,
-        leetcodeUsername: user.leetcodeUsername,
-        isAdmin: user.isAdmin,
-        token: generateToken(user._id),
-      });
+      res.json(buildAuthResponse(user));
     } else {
       res.status(401).json({ message: "Invalid email or password" });
     }
@@ -108,6 +124,8 @@ const getUserProfile = async (req, res) => {
         _id: user._id,
         username: user.username,
         email: user.email,
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
         isAdmin: user.isAdmin,
         isBanned: user.isBanned,
         xp: user.xp,
@@ -116,6 +134,7 @@ const getUserProfile = async (req, res) => {
         leetcodeUsername: user.leetcodeUsername,
         badges: user.badges,
         friends: user.friends,
+        profileComplete: Boolean(user.firstName && user.lastName),
       });
     } else {
       res.status(404).json({ message: "User not found" });
@@ -126,8 +145,203 @@ const getUserProfile = async (req, res) => {
   }
 };
 
+// @desc    Verify OTP and activate email
+// @route   POST /api/auth/verify-otp
+// @access  Public
+const verifyOTP = async (req, res) => {
+  try {
+    const { userId, otp } = req.body;
+
+    if (!userId || !otp) {
+      return res.status(400).json({ message: "User ID and OTP are required" });
+    }
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.emailVerified) {
+      return res.status(400).json({ message: "Email is already verified" });
+    }
+
+    // Check if OTP is expired
+    if (!user.otpExpiry || new Date() > user.otpExpiry) {
+      return res.status(400).json({ message: "OTP has expired" });
+    }
+
+    // Check if OTP matches
+    if (user.otpCode !== otp) {
+      return res.status(400).json({ message: "Invalid OTP" });
+    }
+
+    // Mark email as verified and clear OTP
+    user.emailVerified = true;
+    user.otpCode = null;
+    user.otpExpiry = null;
+    await user.save();
+
+    // Log activity
+    await logActivity({
+      userId: user._id,
+      title: "Verified email",
+      topic: "Auth",
+      difficulty: "Easy",
+    }).catch(() => null);
+
+    // Log in the user
+    res.status(200).json({
+      message: "Email verified successfully",
+      ...buildAuthResponse(user),
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// @desc    Resend OTP
+// @route   POST /api/auth/resend-otp
+// @access  Public
+const resendOTP = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.emailVerified) {
+      return res.status(400).json({ message: "Email is already verified" });
+    }
+
+    // Generate new OTP
+    const otp = generateOTP();
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    user.otpCode = otp;
+    user.otpExpiry = otpExpiry;
+    await user.save();
+
+    // Send OTP email
+    await sendOTPEmail(email, otp).catch((err) => {
+      console.error("Failed to send OTP:", err);
+    });
+
+    res.status(200).json({ message: "OTP sent to your email" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// @desc    Request password reset
+// @route   POST /api/auth/forgot-password
+// @access  Public
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Generate password reset token
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const resetExpiry = new Date(Date.now() + 1 * 60 * 60 * 1000); // 1 hour
+
+    user.passwordResetToken = resetToken;
+    user.passwordResetExpiry = resetExpiry;
+    await user.save();
+
+    // Create reset link
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+
+    // Send password reset email
+    await sendPasswordResetEmail(email, resetToken, resetLink).catch((err) => {
+      console.error("Failed to send reset email:", err);
+    });
+
+    res.status(200).json({
+      message: "Password reset link sent to your email",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// @desc    Reset password with token
+// @route   POST /api/auth/reset-password
+// @access  Public
+const resetPassword = async (req, res) => {
+  try {
+    const { resetToken, newPassword } = req.body;
+
+    if (!resetToken || !newPassword) {
+      return res
+        .status(400)
+        .json({ message: "Reset token and new password are required" });
+    }
+
+    const user = await User.findOne({
+      passwordResetToken: resetToken,
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "Invalid reset token" });
+    }
+
+    // Check if reset token is expired
+    if (!user.passwordResetExpiry || new Date() > user.passwordResetExpiry) {
+      return res.status(400).json({ message: "Reset token has expired" });
+    }
+
+    // Hash new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    user.password = hashedPassword;
+    user.passwordResetToken = null;
+    user.passwordResetExpiry = null;
+    await user.save();
+
+    // Log activity
+    await logActivity({
+      userId: user._id,
+      title: "Reset password",
+      topic: "Auth",
+      difficulty: "Easy",
+    }).catch(() => null);
+
+    res.status(200).json({
+      message: "Password reset successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
   getUserProfile,
+  verifyOTP,
+  resendOTP,
+  forgotPassword,
+  resetPassword,
 };

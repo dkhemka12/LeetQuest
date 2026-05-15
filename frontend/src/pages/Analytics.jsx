@@ -12,7 +12,8 @@ import {
 import PageHeader from "../components/PageHeader";
 import { getAnalyticsOverview } from "../services/dashboardApi";
 import { useAuth } from "../context/AuthContext";
-import { syncLeetcodeData } from "../services/leetcodeApi";
+import { triggerSync, startPeriodicSync, stopPeriodicSync, isSyncRunning } from "../services/autoSyncService";
+import { formatTimeAgo } from "../services/userApi";
 
 const DIFFICULTY_COLORS = {
     Easy: "bg-green",
@@ -56,9 +57,32 @@ const Analytics = () => {
     const [loading, setLoading] = useState(true);
     const [syncing, setSyncing] = useState(false);
     const [error, setError] = useState("");
-    const [syncMessage, setSyncMessage] = useState("");
-    const [leetcodeUsernameInput, setLeetcodeUsernameInput] = useState(user?.leetcodeUsername || "");
     const [analytics, setAnalytics] = useState(() => buildFallbackAnalytics(user));
+
+    useEffect(() => {
+        const isMountedRef = { current: true };
+
+        // Trigger immediate sync on load if username is set
+        if (user?.leetcodeUsername) {
+            triggerSync(user.leetcodeUsername).then(() => {
+                if (isMountedRef.current) {
+                    loadAnalytics(isMountedRef);
+                }
+            });
+        } else {
+            loadAnalytics(isMountedRef);
+        }
+
+        // Start periodic sync if not already running and username is set
+        if (user?.leetcodeUsername && !isSyncRunning()) {
+            startPeriodicSync(user.leetcodeUsername, 6 * 60 * 60 * 1000); // 6 hours
+        }
+
+        return () => {
+            isMountedRef.current = false;
+            // Don't stop periodic sync here - let it continue in background
+        };
+    }, [user?.leetcodeUsername]);
 
     const loadAnalytics = useCallback(async (isMountedRef = { current: true }) => {
         setLoading(true);
@@ -91,44 +115,18 @@ const Analytics = () => {
         }
     }, [user]);
 
-    useEffect(() => {
-        const isMountedRef = { current: true };
-
-        loadAnalytics(isMountedRef);
-
-        return () => {
-            isMountedRef.current = false;
-        };
-    }, [loadAnalytics]);
-
-    useEffect(() => {
-        setLeetcodeUsernameInput(user?.leetcodeUsername || "");
-    }, [user?.leetcodeUsername]);
-
-    const handleSyncNow = async () => {
-        const username = leetcodeUsernameInput.trim();
-        if (!username) {
-            setError("Please enter your LeetCode username before syncing.");
-            setSyncMessage("");
-            return;
-        }
-
+    const handleManualSync = async () => {
         setSyncing(true);
-        setError("");
-        setSyncMessage("");
 
         try {
-            const response = await syncLeetcodeData({ leetcodeUsername: username });
-
-            if (user) {
-                const nextUser = { ...user, leetcodeUsername: username };
-                setUser(nextUser);
-                window.localStorage.setItem("leetquest-user", JSON.stringify(nextUser));
+            if (!user?.leetcodeUsername) {
+                setError("Please add your LeetCode username first.");
+                setSyncing(false);
+                return;
             }
-
+            await triggerSync(user.leetcodeUsername);
             await loadAnalytics();
-            const syncedTotal = response?.data?.data?.totalSolved ?? 0;
-            setSyncMessage(`Sync complete for ${username}. Total solved: ${syncedTotal}.`);
+            setError("");
         } catch {
             setError("Sync failed. Check your username or backend connection and try again.");
         } finally {
@@ -168,20 +166,15 @@ const Analytics = () => {
 
             <div className="space-y-3 rounded-2xl border border-border bg-dark-gray px-4 py-4">
                 <p className="text-sm text-text-muted">
-                    Enter your real LeetCode username, then sync to pull actual accepted-problem data.
+                    {user?.leetcodeUsername
+                        ? `Syncing: ${user.leetcodeUsername} (auto-updates every 6 hours, last sync: ${formatTimeAgo(user.lastSyncedAt)})`
+                        : "Add your LeetCode username in Profile to enable automatic syncing."}
                 </p>
                 <div className="flex flex-wrap items-center gap-3">
-                    <input
-                        type="text"
-                        value={leetcodeUsernameInput}
-                        onChange={(e) => setLeetcodeUsernameInput(e.target.value)}
-                        placeholder="leetcode username"
-                        className="min-w-55 flex-1 rounded-xl border border-border bg-dark px-4 py-2.5 text-sm text-text-main outline-none focus:border-orange"
-                    />
                     <button
                         type="button"
-                        onClick={handleSyncNow}
-                        disabled={syncing}
+                        onClick={handleManualSync}
+                        disabled={syncing || !user?.leetcodeUsername}
                         className="rounded-xl bg-orange px-4 py-2.5 text-sm font-semibold text-dark transition-all hover:bg-orange-hover disabled:cursor-not-allowed disabled:opacity-60"
                     >
                         {syncing ? "Syncing..." : "Sync Now"}
@@ -191,7 +184,6 @@ const Analytics = () => {
 
             {loading ? <p className="text-sm text-text-muted">Loading analytics...</p> : null}
             {error ? <p className="text-sm text-yellow">{error}</p> : null}
-            {syncMessage ? <p className="text-sm text-green">{syncMessage}</p> : null}
 
             <div className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
                 <article className="rounded-3xl border border-border bg-linear-to-br from-dark-gray to-dark p-6 shadow-2xl">
@@ -310,14 +302,14 @@ const Analytics = () => {
 
             <article className="rounded-3xl border border-border bg-dark-gray p-6 shadow-lg">
                 <div className="flex items-center justify-between gap-3">
-                    <h2 className="text-lg font-semibold text-text-main">Activity Timeline</h2>
+                    <h2 className="text-lg font-semibold text-text-main">Recent Problem Solves</h2>
                     <span className="rounded-full border border-border bg-dark px-3 py-1 text-xs text-text-muted">
                         Latest {recentActivities.length}
                     </span>
                 </div>
                 <div className="mt-5 space-y-4">
                     {recentActivities.length === 0 ? (
-                        <p className="text-sm text-text-muted">No tracked activity yet. Sync or solve a problem to populate this feed.</p>
+                        <p className="text-sm text-text-muted">No problem solves yet. Sync or solve a problem to populate this feed.</p>
                     ) : (
                         recentActivities.map((item, index) => (
                             <div
@@ -328,7 +320,6 @@ const Analytics = () => {
                                 <div className="ml-6 flex flex-wrap items-start justify-between gap-3">
                                     <div>
                                         <p className="font-medium text-text-main">{item.title}</p>
-                                        <p className="text-xs text-text-muted">{item.topic} - {item.difficulty}</p>
                                     </div>
                                     <p className="text-xs text-text-muted">
                                         {new Date(item.solvedAt).toLocaleString()}

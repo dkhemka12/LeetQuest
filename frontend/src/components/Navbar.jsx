@@ -11,6 +11,7 @@ const navItemClass = ({ isActive }) =>
 const Navbar = () => {
     const { isAuthenticated, user, logout } = useAuth();
     const navigate = useNavigate();
+    const displayName = user?.firstName ? `Hi, ${user.firstName}` : user?.username || user?.email;
 
     const handleLogout = () => {
         logout();
@@ -49,7 +50,7 @@ const Navbar = () => {
                             )}
                             <div className="flex items-center gap-2 border-l border-border pl-2">
                                 <span className="text-sm text-text-muted">
-                                    {user?.username || user?.email}
+                                    {displayName}
                                 </span>
                                 <button
                                     onClick={handleLogout}

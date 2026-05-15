@@ -99,6 +99,7 @@ const Dashboard = () => {
     const streak = useMemo(() => dashboardData.summary?.streak || 0, [dashboardData]);
     const chartData = useMemo(() => dashboardData.chartData || [], [dashboardData]);
     const leaderboard = useMemo(() => dashboardData.leaderboard || [], [dashboardData]);
+    const displayName = user?.firstName ? `${user.firstName}${user.lastName ? ` ${user.lastName}` : ""}` : user?.username || "there";
 
     return (
         <section className="space-y-6">
@@ -107,6 +108,14 @@ const Dashboard = () => {
                 title="Dashboard"
                 description="Track solved problems, consistency, XP progression, and leaderboard rank from one place."
             />
+
+            <div className="rounded-2xl border border-border bg-dark-gray px-5 py-4 text-text-main shadow-lg">
+                <p className="text-sm uppercase tracking-[0.24em] text-text-muted">Welcome back</p>
+                <h2 className="mt-1 text-2xl font-semibold text-orange">Hi, {displayName}</h2>
+                <p className="mt-1 text-sm text-text-muted">
+                    Your personalized progress, streaks, and LeetCode data are ready.
+                </p>
+            </div>
 
             {loading ? <p className="text-sm text-text-muted">Loading dashboard...</p> : null}
             {error ? <p className="text-sm text-yellow">{error}</p> : null}

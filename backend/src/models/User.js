@@ -19,6 +19,16 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    firstName: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    lastName: {
+      type: String,
+      default: "",
+      trim: true,
+    },
     leetcodeUsername: {
       type: String,
       default: "",
@@ -73,6 +83,34 @@ const userSchema = new mongoose.Schema(
     bannedReason: {
       type: String,
       default: "",
+    },
+    lastSyncedAt: {
+      type: Date,
+      default: null,
+    },
+    profileComplete: {
+      type: Boolean,
+      default: false,
+    },
+    emailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    otpCode: {
+      type: String,
+      default: null,
+    },
+    otpExpiry: {
+      type: Date,
+      default: null,
+    },
+    passwordResetToken: {
+      type: String,
+      default: null,
+    },
+    passwordResetExpiry: {
+      type: Date,
+      default: null,
     },
   },
   { timestamps: true },

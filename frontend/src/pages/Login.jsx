@@ -16,6 +16,8 @@ const Login = ({ mode = "login" }) => {
         username: "",
         email: "",
         password: "",
+        firstName: "",
+        lastName: "",
     });
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
@@ -71,6 +73,8 @@ const Login = ({ mode = "login" }) => {
                     username: formData.username,
                     email: formData.email,
                     password: formData.password,
+                    firstName: formData.firstName,
+                    lastName: formData.lastName,
                 });
             } else {
                 // Validate email and password for login
@@ -87,14 +91,39 @@ const Login = ({ mode = "login" }) => {
             }
 
             const responseData = response.data;
-            const { token, ...userData } = responseData;
 
-            // Store token in localStorage and update auth context
-            localStorage.setItem("authToken", token);
-            login({ ...userData, token });
+            if (isRegister) {
+                // After registration, redirect to OTP verification
+                if (responseData.requiresVerification) {
+                    setTimeout(
+                        () =>
+                            navigate("/verify-otp", {
+                                state: {
+                                    email: responseData.email,
+                                    userId: responseData.userId,
+                                },
+                            }),
+                        300
+                    );
+                }
+            } else {
+                // Login flow
+                const { token, ...userData } = responseData;
+                const profileComplete = Boolean(
+                    userData.firstName && userData.lastName
+                );
 
-            // Redirect to dashboard
-            setTimeout(() => navigate("/dashboard"), 300);
+                // Store token in localStorage and update auth context
+                localStorage.setItem("authToken", token);
+                login({ ...userData, token });
+
+                // Redirect to profile completion if needed, otherwise dashboard
+                setTimeout(
+                    () =>
+                        navigate(profileComplete ? "/dashboard" : "/complete-profile"),
+                    300
+                );
+            }
         } catch (err) {
             const message = err.response?.data?.message || err.message || "An error occurred";
             setError(message);
@@ -139,6 +168,32 @@ const Login = ({ mode = "login" }) => {
                             className="w-full rounded-xl border border-border bg-dark px-4 py-3 text-text-main outline-none disabled:opacity-50 transition-all"
                         />
                     )}
+                    {isRegister && (
+                        <div className="grid gap-4 sm:grid-cols-2">
+                            <input
+                                type="text"
+                                name="firstName"
+                                placeholder="First name"
+                                value={formData.firstName}
+                                onChange={handleChange}
+                                onFocus={handleInputFocus}
+                                onBlur={handleInputBlur}
+                                disabled={loading}
+                                className="w-full rounded-xl border border-border bg-dark px-4 py-3 text-text-main outline-none disabled:opacity-50 transition-all"
+                            />
+                            <input
+                                type="text"
+                                name="lastName"
+                                placeholder="Last name"
+                                value={formData.lastName}
+                                onChange={handleChange}
+                                onFocus={handleInputFocus}
+                                onBlur={handleInputBlur}
+                                disabled={loading}
+                                className="w-full rounded-xl border border-border bg-dark px-4 py-3 text-text-main outline-none disabled:opacity-50 transition-all"
+                            />
+                        </div>
+                    )}
                     <input
                         type="email"
                         name="email"
@@ -163,6 +218,18 @@ const Login = ({ mode = "login" }) => {
                         ref={(el) => (inputsRef.current[isRegister ? 2 : 1] = el)}
                         className="w-full rounded-xl border border-border bg-dark px-4 py-3 text-text-main outline-none disabled:opacity-50 transition-all"
                     />
+
+                    {/* Forgot Password Link (Login Only) */}
+                    {!isRegister && (
+                        <div className="text-right">
+                            <Link
+                                to="/forgot-password"
+                                className="text-sm text-text-secondary hover:text-lc-purple transition-colors"
+                            >
+                                Forgot password?
+                            </Link>
+                        </div>
+                    )}
 
                     {error && (
                         <div className="rounded-xl bg-red-500 bg-opacity-10 px-4 py-3 text-sm text-red-400">
