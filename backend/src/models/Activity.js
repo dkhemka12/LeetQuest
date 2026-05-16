@@ -12,6 +12,11 @@ const activitySchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    titleSlug: {
+      type: String,
+      default: "",
+      trim: true,
+    },
     topic: {
       type: String,
       default: "General",

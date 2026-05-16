@@ -14,6 +14,7 @@ import { getAnalyticsOverview } from "../services/dashboardApi";
 import { useAuth } from "../context/AuthContext";
 import { triggerSync, startPeriodicSync, stopPeriodicSync, isSyncRunning } from "../services/autoSyncService";
 import { formatTimeAgo } from "../services/userApi";
+import { FiRefreshCw } from "react-icons/fi";
 
 const DIFFICULTY_COLORS = {
     Easy: "bg-green",
@@ -158,11 +159,23 @@ const Analytics = () => {
 
     return (
         <section className="space-y-6">
-            <PageHeader
-                eyebrow="Analytics"
-                title="Performance Analytics"
-                description="Explore your solving rhythm, focus areas, and recent momentum with an analysis-first view."
-            />
+            <div className="flex items-start justify-between">
+                <PageHeader
+                    eyebrow="Analytics"
+                    title="Performance Analytics"
+                    description="Explore your solving rhythm, focus areas, and recent momentum with an analysis-first view."
+                />
+                {/* Resync Button in Top-Right Corner */}
+                <button
+                    type="button"
+                    onClick={handleManualSync}
+                    disabled={syncing || !user?.leetcodeUsername}
+                    title={syncing ? "Syncing..." : "Resync LeetCode data"}
+                    className="rounded-lg border border-border bg-dark-gray p-3 text-lg transition-all hover:enabled:border-lc-purple hover:enabled:text-lc-purple disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                    <FiRefreshCw className={syncing ? "animate-spin" : ""} />
+                </button>
+            </div>
 
             <div className="space-y-3 rounded-2xl border border-border bg-dark-gray px-4 py-4">
                 <p className="text-sm text-text-muted">
@@ -170,16 +183,6 @@ const Analytics = () => {
                         ? `Syncing: ${user.leetcodeUsername} (auto-updates every 6 hours, last sync: ${formatTimeAgo(user.lastSyncedAt)})`
                         : "Add your LeetCode username in Profile to enable automatic syncing."}
                 </p>
-                <div className="flex flex-wrap items-center gap-3">
-                    <button
-                        type="button"
-                        onClick={handleManualSync}
-                        disabled={syncing || !user?.leetcodeUsername}
-                        className="rounded-xl bg-orange px-4 py-2.5 text-sm font-semibold text-dark transition-all hover:bg-orange-hover disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                        {syncing ? "Syncing..." : "Sync Now"}
-                    </button>
-                </div>
             </div>
 
             {loading ? <p className="text-sm text-text-muted">Loading analytics...</p> : null}

@@ -8,6 +8,8 @@ import Leaderboard from "../components/Leaderboard";
 import EmptyState from "../components/EmptyState";
 import { useAuth } from "../context/AuthContext";
 import { getDashboardSummary } from "../services/dashboardApi";
+import { syncLeetcodeData } from "../services/leetcodeApi";
+import { updateUserProfile } from "../services/userApi";
 
 const buildFallbackDashboard = (user) => {
     const easy = user?.easySolved || 0;
@@ -37,13 +39,16 @@ const buildFallbackDashboard = (user) => {
 };
 
 const Dashboard = () => {
-    const { user } = useAuth();
+    const { user, setUser } = useAuth();
     const cardsRef = useRef(null);
     const chartsRef = useRef(null);
     const emptyStateRef = useRef(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [dashboardData, setDashboardData] = useState(() => buildFallbackDashboard(user));
+    const [leetcodeUsername, setLeetcodeUsername] = useState(user?.leetcodeUsername || "");
+    const [syncLoading, setSyncLoading] = useState(false);
+    const [syncError, setSyncError] = useState("");
 
     useEffect(() => {
         let mounted = true;
@@ -88,6 +93,69 @@ const Dashboard = () => {
         // CSS transition handles the animation
     };
 
+
+    const handleSaveLeetcodeUsername = async () => {
+        if (!leetcodeUsername.trim()) {
+            setSyncError("Please enter a valid LeetCode username");
+            return;
+        }
+
+        try {
+            setSyncLoading(true);
+            setSyncError("");
+
+            // Update user profile with username
+            await updateUserProfile({ leetcodeUsername: leetcodeUsername.trim() });
+
+            // Sync LeetCode data
+            await syncLeetcodeData(leetcodeUsername.trim());
+
+            // Update local user context
+            setUser({ ...user, leetcodeUsername: leetcodeUsername.trim() });
+
+            // Reload dashboard
+            window.location.reload();
+        } catch (err) {
+            setSyncError(err.response?.data?.message || "Failed to sync LeetCode data");
+        } finally {
+            setSyncLoading(false);
+        }
+    };
+
+    {/* LeetCode Username Setup */ }
+    {
+        !user?.leetcodeUsername && (
+            <div className="rounded-2xl border-2 border-lc-purple border-opacity-50 bg-lc-purple/10 px-5 py-4 text-text-main shadow-lg">
+                <p className="text-sm uppercase tracking-[0.24em] text-lc-purple font-semibold">Connect Your LeetCode</p>
+                <p className="mt-2 text-sm text-text-secondary">
+                    Enter your LeetCode username to automatically sync your problems solved, streaks, and progress.
+                </p>
+                <div className="mt-4 flex gap-3">
+                    <input
+                        type="text"
+                        placeholder="Enter LeetCode username"
+                        value={leetcodeUsername}
+                        onChange={(e) => {
+                            setLeetcodeUsername(e.target.value);
+                            setSyncError("");
+                        }}
+                        disabled={syncLoading}
+                        className="flex-1 rounded-lg border border-border bg-dark px-4 py-2 text-sm text-text-main outline-none disabled:opacity-50 focus:border-lc-purple focus:ring-1 focus:ring-lc-purple/20"
+                    />
+                    <button
+                        onClick={handleSaveLeetcodeUsername}
+                        disabled={syncLoading || !leetcodeUsername.trim()}
+                        className="rounded-lg bg-lc-purple px-6 py-2 font-semibold text-white transition-all disabled:opacity-50 hover:enabled:bg-lc-purple/90 active:enabled:scale-95"
+                    >
+                        {syncLoading ? "Syncing..." : "Sync"}
+                    </button>
+                </div>
+                {syncError && (
+                    <p className="mt-2 text-xs text-red-400">{syncError}</p>
+                )}
+            </div>
+        )
+    }
     const handleCardHoverOut = (e) => {
         // CSS transition handles the animation
     };
@@ -105,17 +173,9 @@ const Dashboard = () => {
         <section className="space-y-6">
             <PageHeader
                 eyebrow="Overview"
-                title="Dashboard"
+                title={`Hi, ${displayName} `}
                 description="Track solved problems, consistency, XP progression, and leaderboard rank from one place."
             />
-
-            <div className="rounded-2xl border border-border bg-dark-gray px-5 py-4 text-text-main shadow-lg">
-                <p className="text-sm uppercase tracking-[0.24em] text-text-muted">Welcome back</p>
-                <h2 className="mt-1 text-2xl font-semibold text-orange">Hi, {displayName}</h2>
-                <p className="mt-1 text-sm text-text-muted">
-                    Your personalized progress, streaks, and LeetCode data are ready.
-                </p>
-            </div>
 
             {loading ? <p className="text-sm text-text-muted">Loading dashboard...</p> : null}
             {error ? <p className="text-sm text-yellow">{error}</p> : null}

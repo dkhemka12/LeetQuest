@@ -93,10 +93,23 @@ const VerifyOTP = () => {
                 <PageHeader
                     eyebrow="Verify Email"
                     title="Check Your Email"
-                    description={`We sent a 6-digit verification code to ${userEmail || "your email"}. Enter it below to activate your account.`}
+                    description="Enter the 6-digit code sent to your email to activate your account."
                 />
 
                 <form onSubmit={handleVerify} className="mt-8 space-y-4">
+                    {/* Email Display with Resend */}
+                    <div className="rounded-lg border border-border bg-dark px-4 py-3 flex items-center justify-between">
+                        <span className="text-text-secondary text-sm">Sent to: <strong>{userEmail}</strong></span>
+                        <button
+                            type="button"
+                            onClick={handleResendOTP}
+                            disabled={loading || resendCooldown > 0}
+                            className="text-xs text-lc-purple font-semibold hover:enabled:text-lc-purple/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        >
+                            {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend"}
+                        </button>
+                    </div>
+
                     {/* Error Message */}
                     {error && (
                         <div className="rounded-lg border border-red-500 bg-red-500/10 px-4 py-3 text-red-400">
@@ -142,7 +155,7 @@ const VerifyOTP = () => {
 
                     {/* Resend OTP */}
                     <div className="flex items-center justify-center gap-2 text-sm text-text-secondary">
-                        <p>Didn't receive the code?</p>
+                        <p>Still no code?</p>
                         <button
                             type="button"
                             onClick={handleResendOTP}
@@ -151,7 +164,7 @@ const VerifyOTP = () => {
                         >
                             {resendCooldown > 0
                                 ? `Resend in ${resendCooldown}s`
-                                : "Resend OTP"}
+                                : "Request new code"}
                         </button>
                     </div>
                 </form>

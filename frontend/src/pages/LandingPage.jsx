@@ -2,7 +2,8 @@ import React, { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import {
   HiOutlineChartBar,
   HiOutlineChatBubbleBottomCenterText,
@@ -78,8 +79,16 @@ const workflowSteps = [
 const LandingPage = () => {
   const statsRef = useRef(null);
   const workflowRef = useRef(null);
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
+    // Redirect authenticated users to dashboard
+    if (isAuthenticated) {
+      navigate("/dashboard", { replace: true });
+      return;
+    }
+
     // Stats animations on scroll
     if (statsRef.current) {
       gsap.from(statsRef.current.children, {
@@ -102,7 +111,7 @@ const LandingPage = () => {
     }
 
     return () => ScrollTrigger.getAll().forEach((t) => t.kill());
-  }, []);
+  }, [isAuthenticated, navigate]);
 
   const handleCardHover = (e) => {
     gsap.to(e.currentTarget, {

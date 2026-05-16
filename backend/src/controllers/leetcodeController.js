@@ -51,32 +51,31 @@ const syncLeetcodeData = async (req, res) => {
     }).catch(() => null);
 
     if (Array.isArray(data.recentSubmissions)) {
-      const submissions = data.recentSubmissions.slice(0, 8);
+      const submissions = data.recentSubmissions;
 
       // Check for duplicates before logging
       const existingActivities = await Activity.find({
         user: user._id,
         topic: "LeetCode",
       })
-        .select("title solvedAt")
+        .select("title titleSlug")
         .lean();
 
       const existingSet = new Set(
-        existingActivities.map(
-          (a) => `${a.title}||${a.solvedAt ? a.solvedAt.toISOString() : ""}`,
-        ),
+        existingActivities.map((a) => a.titleSlug || a.title),
       );
 
       await Promise.all(
         submissions.map((submission) => {
           const difficulty = submission?.difficulty || "Easy";
           const title = submission?.title || "Solved problem";
+          const titleSlug = submission?.titleSlug || "";
           const topic = submission?.topic || "LeetCode";
           const solvedAt = submission?.solvedAt
             ? new Date(submission.solvedAt)
             : new Date();
 
-          const key = `${title}||${solvedAt.toISOString()}`;
+          const key = titleSlug || title;
           if (existingSet.has(key)) {
             console.log(`Skipping duplicate activity: ${title}`);
             return null;
@@ -85,6 +84,7 @@ const syncLeetcodeData = async (req, res) => {
           return logActivity({
             userId: user._id,
             title,
+            titleSlug,
             topic,
             difficulty,
             solvedAt,
@@ -166,12 +166,13 @@ const clearAndResyncLeetcode = async (req, res) => {
 
     // Log fresh activities (no duplicates since we just cleared)
     if (Array.isArray(data.recentSubmissions)) {
-      const submissions = data.recentSubmissions.slice(0, 8);
+      const submissions = data.recentSubmissions;
 
       await Promise.all(
         submissions.map((submission) => {
           const difficulty = submission?.difficulty || "Easy";
           const title = submission?.title || "Solved problem";
+          const titleSlug = submission?.titleSlug || "";
           const topic = submission?.topic || "LeetCode";
           const solvedAt = submission?.solvedAt
             ? new Date(submission.solvedAt)
@@ -180,6 +181,7 @@ const clearAndResyncLeetcode = async (req, res) => {
           return logActivity({
             userId: user._id,
             title,
+            titleSlug,
             topic,
             difficulty,
             solvedAt,

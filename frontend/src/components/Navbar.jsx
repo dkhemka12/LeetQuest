@@ -13,15 +13,19 @@ const Navbar = () => {
     const navigate = useNavigate();
     const displayName = user?.firstName ? `Hi, ${user.firstName}` : user?.username || user?.email;
 
-    const handleLogout = () => {
-        logout();
-        navigate("/");
+    const handleLogoClick = (e) => {
+        if (isAuthenticated) {
+            e.preventDefault();
+            navigate("/dashboard");
+        }
     };
+
+    const logoTo = isAuthenticated ? "/" : "/";
 
     return (
         <header className="border-b border-border bg-dark/90 backdrop-blur">
             <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-                <Link to="/" className="text-lg font-semibold tracking-wide">
+                <Link to={logoTo} onClick={handleLogoClick} className="text-lg font-semibold tracking-wide">
                     Leet<span className="text-orange">Quest</span>
                 </Link>
 
@@ -34,6 +38,9 @@ const Navbar = () => {
                             <NavLink to="/analytics" className={navItemClass}>
                                 Analytics
                             </NavLink>
+                            <NavLink to="/history" className={navItemClass}>
+                                History
+                            </NavLink>
                             <NavLink to="/challenges" className={navItemClass}>
                                 Challenges
                             </NavLink>
@@ -44,8 +51,8 @@ const Navbar = () => {
                                 Profile
                             </NavLink>
                             {user?.isAdmin && (
-                                <NavLink to="/admin" className={navItemClass}>
-                                    Admin
+                                <NavLink to="/admin/users" className={navItemClass}>
+                                    Users
                                 </NavLink>
                             )}
                             <div className="flex items-center gap-2 border-l border-border pl-2">
@@ -53,7 +60,10 @@ const Navbar = () => {
                                     {displayName}
                                 </span>
                                 <button
-                                    onClick={handleLogout}
+                                    onClick={() => {
+                                        logout();
+                                        navigate("/");
+                                    }}
                                     className="rounded-full border border-border px-4 py-2 text-sm font-medium text-text-main hover:bg-light-gray transition-colors"
                                 >
                                     Log out

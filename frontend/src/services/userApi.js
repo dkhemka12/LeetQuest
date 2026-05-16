@@ -46,3 +46,31 @@ export const formatTimeAgo = (date) => {
 
   return new Date(date).toLocaleDateString();
 };
+
+/**
+ * Get user's activity history with pagination
+ */
+export const getUserActivityHistory = async (page = 1, limit = 20) => {
+  try {
+    const response = await api.get(
+      `/users/me/history?page=${page}&limit=${limit}`,
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Failed to fetch activity history:", error);
+    throw error;
+  }
+};
+
+/**
+ * Get public profile of another user
+ */
+export const getPublicProfile = async (username) => {
+  try {
+    const response = await api.get(`/users/${username}/public`);
+    return response.data;
+  } catch (error) {
+    console.error("Failed to fetch public profile:", error);
+    throw error;
+  }
+};

@@ -3,6 +3,7 @@ const Activity = require("../models/Activity");
 const logActivity = async ({
   userId,
   title,
+  titleSlug = "",
   topic = "General",
   difficulty = "Easy",
   solvedAt = new Date(),
@@ -14,6 +15,7 @@ const logActivity = async ({
   return Activity.create({
     user: userId,
     title,
+    titleSlug,
     topic,
     difficulty,
     solvedAt,

@@ -116,7 +116,10 @@ const loginUser = async (req, res) => {
         difficulty: "Easy",
       }).catch(() => null);
 
-      res.json(buildAuthResponse(user));
+      res.json({
+        ...buildAuthResponse(user),
+        emailVerified: user.emailVerified,
+      });
     } else {
       res.status(401).json({ message: "Invalid email or password" });
     }
