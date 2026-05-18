@@ -11,6 +11,7 @@ import CompleteProfile from "./pages/CompleteProfile";
 import Analytics from "./pages/Analytics";
 import Challenges from "./pages/Challenges";
 import Friends from "./pages/Friends";
+import Clans from "./pages/Clans";
 import Profile from "./pages/Profile";
 import History from "./pages/History";
 import PublicProfile from "./pages/PublicProfile";
@@ -47,6 +48,7 @@ function App() {
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/challenges" element={<Challenges />} />
           <Route path="/friends" element={<Friends />} />
+          <Route path="/clans" element={<Clans />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/history" element={<History />} />
         </Route>

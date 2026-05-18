@@ -47,6 +47,9 @@ const Navbar = () => {
                             <NavLink to="/friends" className={navItemClass}>
                                 Friends
                             </NavLink>
+                            <NavLink to="/clans" className={navItemClass}>
+                                Clans
+                            </NavLink>
                             <NavLink to="/profile" className={navItemClass}>
                                 Profile
                             </NavLink>

@@ -26,6 +26,120 @@ export const updateUserProfile = async (updates) => {
   }
 };
 
+export const searchUsers = async (query, limit = 10) => {
+  try {
+    const response = await api.get(
+      `/users/search?q=${encodeURIComponent(query)}&limit=${limit}`,
+    );
+    return response.data.users || [];
+  } catch (error) {
+    console.error("Failed to search users:", error);
+    throw error;
+  }
+};
+
+export const getUserFriends = async () => {
+  try {
+    const response = await api.get("/users/me/friends");
+    return response.data.friends || [];
+  } catch (error) {
+    console.error("Failed to fetch user friends:", error);
+    throw error;
+  }
+};
+
+export const addFriend = async (userId) => {
+  try {
+    const response = await api.post(`/users/me/friends/${userId}`);
+    return response.data.friends || [];
+  } catch (error) {
+    console.error("Failed to add friend:", error);
+    throw error;
+  }
+};
+
+export const removeFriend = async (userId) => {
+  try {
+    const response = await api.delete(`/users/me/friends/${userId}`);
+    return response.data.friends || [];
+  } catch (error) {
+    console.error("Failed to remove friend:", error);
+    throw error;
+  }
+};
+
+export const getClans = async () => {
+  try {
+    const response = await api.get("/users/clans");
+    return response.data.clans || [];
+  } catch (error) {
+    console.error("Failed to fetch clans:", error);
+    throw error;
+  }
+};
+
+export const getMyClan = async () => {
+  try {
+    const response = await api.get("/users/clans/me");
+    return response.data.clan || null;
+  } catch (error) {
+    console.error("Failed to fetch current clan:", error);
+    throw error;
+  }
+};
+
+export const createClan = async (name) => {
+  try {
+    const response = await api.post("/users/clans", { name });
+    return response.data.clan;
+  } catch (error) {
+    console.error("Failed to create clan:", error);
+    throw error;
+  }
+};
+
+export const joinClan = async (inviteCode) => {
+  try {
+    const response = await api.post("/users/clans/join", { inviteCode });
+    return response.data.clan;
+  } catch (error) {
+    console.error("Failed to join clan:", error);
+    throw error;
+  }
+};
+
+export const leaveClan = async (clanId) => {
+  try {
+    const response = await api.post(`/users/clans/${clanId}/leave`);
+    return response.data.clan || null;
+  } catch (error) {
+    console.error("Failed to leave clan:", error);
+    throw error;
+  }
+};
+
+export const getClanTownhall = async (clanId) => {
+  try {
+    const response = await api.get(`/users/clans/${clanId}/townhall`);
+    return response.data.clan || null;
+  } catch (error) {
+    console.error("Failed to fetch clan townhall:", error);
+    throw error;
+  }
+};
+
+export const postClanTownhallMessage = async (clanId, body) => {
+  try {
+    const response = await api.post(`/users/clans/${clanId}/townhall`, {
+      body,
+    });
+    return response.data.clan || null;
+  } catch (error) {
+    console.error("Failed to post clan townhall message:", error);
+    throw error;
+  }
+};
+
 /**
  * Format time to relative format (e.g., "2 hours ago")
  */
