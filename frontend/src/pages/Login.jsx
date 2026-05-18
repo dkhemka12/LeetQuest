@@ -150,13 +150,7 @@ const Login = ({ mode = "login" }) => {
         }
     };
 
-    const handleQuickLogin = (credentials) => {
-        setFormData((prev) => ({
-            ...prev,
-            ...credentials,
-        }));
-        setError("");
-    };
+
 
     return (
         <section className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-lg items-center px-4 py-12">
@@ -269,36 +263,7 @@ const Login = ({ mode = "login" }) => {
                                 : "Log in"}
                     </button>
 
-                    {/* Quick Login Buttons for Development */}
-                    <div className="mt-6 space-y-3 border-t border-border pt-6">
-                        <p className="text-xs text-text-muted">💡 Dev Shortcuts:</p>
-                        <button
-                            type="button"
-                            onClick={() => {
-                                handleQuickLogin({
-                                    username: "devansh",
-                                    email: "devansh@gmail.com",
-                                    password: "devakhmk",
-                                });
-                            }}
-                            className="w-full rounded-xl border border-orange bg-transparent px-4 py-2 text-sm font-medium text-orange hover:bg-orange/10 transition-all"
-                        >
-                            Login as Admin
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => {
-                                handleQuickLogin({
-                                    username: "testuser",
-                                    email: "test@leetquest.com",
-                                    password: "test123",
-                                });
-                            }}
-                            className="w-full rounded-xl border border-green bg-transparent px-4 py-2 text-sm font-medium text-green hover:bg-green/10 transition-all"
-                        >
-                            Login as Test User
-                        </button>
-                    </div>
+                    {/* Dev shortcuts removed for production */}
                 </form>
 
                 <p className="mt-6 text-sm text-text-muted">
