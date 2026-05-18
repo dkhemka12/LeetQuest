@@ -285,11 +285,14 @@ const forgotPassword = async (req, res) => {
     await user.save();
 
     // Create reset link
-    const resetLink = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+    const frontendBaseUrl = process.env.FRONTEND_URL || req.get("origin") || "";
+    const resetLink = `${frontendBaseUrl.replace(/\/$/, "")}/reset-password/${resetToken}`;
 
-    // Send password reset email
-    await sendPasswordResetEmail(email, resetToken, resetLink).catch((err) => {
-      console.error("Failed to send reset email:", err);
+    // Send the email in the background so the request does not wait on SMTP.
+    setImmediate(() => {
+      sendPasswordResetEmail(email, resetToken, resetLink).catch((err) => {
+        console.error("Failed to send reset email:", err);
+      });
     });
 
     res.status(200).json({

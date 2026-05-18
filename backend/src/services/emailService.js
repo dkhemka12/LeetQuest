@@ -1,13 +1,27 @@
 const nodemailer = require("nodemailer");
 
-// Create transporter using Gmail SMTP
+const emailUser = process.env.EMAIL_USER;
+const emailPassword = process.env.EMAIL_PASSWORD;
+
+// Create transporter using explicit Gmail SMTP settings so failures surface quickly.
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD, // Gmail App Password (not regular password)
+    user: emailUser,
+    pass: emailPassword, // Gmail App Password (not regular password)
   },
+  connectionTimeout: 10000,
+  greetingTimeout: 10000,
+  socketTimeout: 10000,
 });
+
+const assertEmailConfig = () => {
+  if (!emailUser || !emailPassword) {
+    throw new Error("Email service is not configured");
+  }
+};
 
 // Generate 6-digit OTP
 const generateOTP = () => {
@@ -17,6 +31,8 @@ const generateOTP = () => {
 // Send OTP email
 const sendOTPEmail = async (email, otp) => {
   try {
+    assertEmailConfig();
+
     const htmlContent = `
       <html>
         <head>
@@ -49,7 +65,7 @@ const sendOTPEmail = async (email, otp) => {
     `;
 
     await transporter.sendMail({
-      from: process.env.EMAIL_USER,
+      from: emailUser,
       to: email,
       subject: "Verify your LeetQuest email - OTP",
       html: htmlContent,
@@ -65,6 +81,8 @@ const sendOTPEmail = async (email, otp) => {
 // Send password reset email
 const sendPasswordResetEmail = async (email, resetToken, resetLink) => {
   try {
+    assertEmailConfig();
+
     const htmlContent = `
       <html>
         <head>
@@ -99,7 +117,7 @@ const sendPasswordResetEmail = async (email, resetToken, resetLink) => {
     `;
 
     await transporter.sendMail({
-      from: process.env.EMAIL_USER,
+      from: emailUser,
       to: email,
       subject: "Reset your LeetQuest password",
       html: htmlContent,
@@ -114,6 +132,8 @@ const sendPasswordResetEmail = async (email, resetToken, resetLink) => {
 
 const sendSupportRequestEmail = async ({ to, replyTo, supportRequest }) => {
   try {
+    assertEmailConfig();
+
     const isFeedback = supportRequest.type === "feedback";
     const supportTypeLabel = isFeedback ? "Feedback" : "Message";
     const supportTypeColor = isFeedback ? "#16a34a" : "#f97316";
@@ -208,7 +228,7 @@ const sendSupportRequestEmail = async ({ to, replyTo, supportRequest }) => {
     `;
 
     await transporter.sendMail({
-      from: process.env.EMAIL_USER,
+      from: emailUser,
       to,
       replyTo: replyTo || supportRequest.email,
       subject: `[LeetQuest] New ${supportRequest.type === "feedback" ? "feedback" : "message"}`,
