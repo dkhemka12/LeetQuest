@@ -59,9 +59,6 @@ const Navbar = () => {
                                 </NavLink>
                             )}
                             <div className="flex items-center gap-2 border-l border-border pl-2">
-                                <span className="text-sm text-text-muted">
-                                    {displayName}
-                                </span>
                                 <button
                                     onClick={() => {
                                         logout();
