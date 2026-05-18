@@ -16,7 +16,7 @@ const Navbar = () => {
     const handleLogoClick = (e) => {
         if (isAuthenticated) {
             e.preventDefault();
-            navigate("/dashboard");
+            navigate(user?.isAdmin ? "/admin" : "/dashboard");
         }
     };
 
@@ -32,31 +32,45 @@ const Navbar = () => {
                 <nav className="flex flex-wrap items-center gap-2">
                     {isAuthenticated && (
                         <>
-                            <NavLink to="/dashboard" className={navItemClass}>
-                                Dashboard
-                            </NavLink>
-                            <NavLink to="/analytics" className={navItemClass}>
-                                Analytics
-                            </NavLink>
-                            <NavLink to="/history" className={navItemClass}>
-                                History
-                            </NavLink>
-                            <NavLink to="/challenges" className={navItemClass}>
-                                Challenges
-                            </NavLink>
-                            <NavLink to="/friends" className={navItemClass}>
-                                Friends
-                            </NavLink>
-                            <NavLink to="/clans" className={navItemClass}>
-                                Clans
-                            </NavLink>
-                            <NavLink to="/profile" className={navItemClass}>
-                                Profile
-                            </NavLink>
-                            {user?.isAdmin && (
-                                <NavLink to="/admin/users" className={navItemClass}>
-                                    Users
-                                </NavLink>
+                            {user?.isAdmin ? (
+                                <>
+                                    <NavLink to="/admin" className={navItemClass}>
+                                        Admin Dashboard
+                                    </NavLink>
+                                    <NavLink to="/admin/users" className={navItemClass}>
+                                        Users
+                                    </NavLink>
+                                    <NavLink to="/admin/challenges" className={navItemClass}>
+                                        Challenges
+                                    </NavLink>
+                                    <NavLink to="/admin/support" className={navItemClass}>
+                                        Support
+                                    </NavLink>
+                                </>
+                            ) : (
+                                <>
+                                    <NavLink to="/dashboard" className={navItemClass}>
+                                        Dashboard
+                                    </NavLink>
+                                    <NavLink to="/analytics" className={navItemClass}>
+                                        Analytics
+                                    </NavLink>
+                                    <NavLink to="/history" className={navItemClass}>
+                                        History
+                                    </NavLink>
+                                    <NavLink to="/challenges" className={navItemClass}>
+                                        Challenges
+                                    </NavLink>
+                                    <NavLink to="/friends" className={navItemClass}>
+                                        Friends
+                                    </NavLink>
+                                    <NavLink to="/clans" className={navItemClass}>
+                                        Clans
+                                    </NavLink>
+                                    <NavLink to="/profile" className={navItemClass}>
+                                        Profile
+                                    </NavLink>
+                                </>
                             )}
                             <div className="flex items-center gap-2 border-l border-border pl-2">
                                 <button

@@ -10,25 +10,19 @@ const MIN_SYNC_INTERVAL = 5 * 60 * 1000; // Minimum 5 minutes between syncs
  */
 export const triggerSync = async (leetcodeUsername) => {
   if (!leetcodeUsername) {
-    console.log("No LeetCode username set, skipping auto-sync");
     return false;
   }
 
   const now = Date.now();
   if (now - lastSyncTime < MIN_SYNC_INTERVAL) {
-    console.log(
-      `Sync cooldown active. Last sync: ${Math.round((now - lastSyncTime) / 1000)}s ago`,
-    );
     return false;
   }
 
   try {
     lastSyncTime = now;
     await syncLeetcodeData({ leetcodeUsername });
-    console.log(`Auto-sync completed for ${leetcodeUsername}`);
     return true;
   } catch (error) {
-    console.log(`Auto-sync failed for ${leetcodeUsername}:`, error.message);
     return false;
   }
 };
@@ -43,18 +37,13 @@ export const startPeriodicSync = (
   intervalMs = 6 * 60 * 60 * 1000,
 ) => {
   if (syncIntervalId) {
-    console.log("Sync already running, skipping start");
     return;
   }
 
   if (!leetcodeUsername) {
-    console.log("No LeetCode username, cannot start periodic sync");
     return;
   }
 
-  console.log(
-    `Starting periodic sync every ${intervalMs / 1000 / 60 / 60} hours`,
-  );
   syncIntervalId = setInterval(() => {
     triggerSync(leetcodeUsername);
   }, intervalMs);
@@ -67,7 +56,6 @@ export const stopPeriodicSync = () => {
   if (syncIntervalId) {
     clearInterval(syncIntervalId);
     syncIntervalId = null;
-    console.log("Periodic sync stopped");
   }
 };
 

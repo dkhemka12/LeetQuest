@@ -2,14 +2,16 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 const Leaderboard = ({ users = [] }) => {
+    const visibleUsers = users.filter((user) => !user?.isAdmin);
+
     return (
         <article className="rounded-2xl border border-border bg-dark-gray p-6 shadow-lg">
             <h2 className="text-lg font-semibold text-text-main">Leaderboard</h2>
             <div className="mt-4 space-y-3">
-                {users.length === 0 ? (
+                {visibleUsers.length === 0 ? (
                     <p className="text-sm text-text-muted">Leaderboard data will appear here.</p>
                 ) : (
-                    users.map((user, index) => (
+                    visibleUsers.map((user, index) => (
                         <Link
                             key={user.username || index}
                             to={`/user/${user.username}`}

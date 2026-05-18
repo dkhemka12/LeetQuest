@@ -446,6 +446,11 @@ const updateUserProfile = async (req, res) => {
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         leetcodeUsername: req.body.leetcodeUsername,
+        preferredTopics: Array.isArray(req.body.preferredTopics)
+          ? req.body.preferredTopics
+              .map((topic) => String(topic).trim())
+              .filter(Boolean)
+          : undefined,
       },
       { new: true },
     ).select("-password");
@@ -471,7 +476,6 @@ const getLeaderboardPreview = async (req, res) => {
       .select("username xp level streak consistencyScore");
 
     res.json({
-      message: "Leaderboard preview placeholder",
       users,
     });
   } catch (error) {

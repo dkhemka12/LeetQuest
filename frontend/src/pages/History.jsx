@@ -26,11 +26,9 @@ const History = () => {
             setLoading(true);
             setError("");
             const data = await getUserActivityHistory(page, PAGE_SIZE);
-            console.log("Activity history data:", data);
             setActivities(Array.isArray(data.activities) ? data.activities : []);
             setPagination(data.pagination || { page, limit: PAGE_SIZE, total: 0, pages: 1 });
         } catch (err) {
-            console.error("Activity history error:", err);
             setError(err.response?.data?.message || "Failed to load activity history");
             setActivities([]);
         } finally {

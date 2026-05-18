@@ -1,5 +1,7 @@
 const User = require("../models/User");
 const Activity = require("../models/Activity");
+const Challenge = require("../models/Challenge");
+const Clan = require("../models/Clan");
 
 // Get all users with pagination and filtering
 const getAllUsers = async (req, res) => {
@@ -202,6 +204,12 @@ const getAdminStats = async (req, res) => {
     const totalUsers = await User.countDocuments();
     const bannedUsers = await User.countDocuments({ isBanned: true });
     const adminUsers = await User.countDocuments({ isAdmin: true });
+    const totalChallenges = await Challenge.countDocuments();
+    const activeChallenges = await Challenge.countDocuments({
+      status: { $in: ["open", "active"] },
+    });
+    const dailyChallenges = await Challenge.countDocuments({ type: "daily" });
+    const totalClans = await Clan.countDocuments();
     const recentUsers = await User.find()
       .select("-password")
       .sort({ createdAt: -1 })
@@ -213,6 +221,10 @@ const getAdminStats = async (req, res) => {
         bannedUsers,
         adminUsers,
         activeUsers: totalUsers - bannedUsers,
+        totalChallenges,
+        activeChallenges,
+        dailyChallenges,
+        totalClans,
       },
       recentUsers,
     });
@@ -220,6 +232,122 @@ const getAdminStats = async (req, res) => {
     res
       .status(500)
       .json({ message: "Failed to fetch stats", error: err.message });
+  }
+};
+
+const getAllChallenges = async (req, res) => {
+  try {
+    const challenges = await Challenge.find()
+      .sort({ createdAt: -1 })
+      .populate(
+        "creator opponent winner clan",
+        "username firstName lastName name slug inviteCode",
+      );
+
+    res.json({ challenges });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Failed to fetch challenges", error: err.message });
+  }
+};
+
+const createAdminChallenge = async (req, res) => {
+  try {
+    const challenge = await Challenge.create({
+      title: req.body.title || "Admin Challenge",
+      description: req.body.description || "",
+      type: req.body.type || "custom",
+      creator: req.user._id,
+      opponent: req.body.opponent || null,
+      clan: req.body.clan || null,
+      topics: Array.isArray(req.body.topics) ? req.body.topics : [],
+      topic: req.body.topic || "General",
+      questionSlug: req.body.questionSlug || "",
+      questionTitle: req.body.questionTitle || "",
+      questionUrl: req.body.questionUrl || "",
+      difficulty: req.body.difficulty || "Easy",
+      targetQuestions: req.body.targetQuestions || 1,
+      deadline: req.body.deadline || null,
+      status: req.body.status || "open",
+    });
+
+    res.status(201).json({ challenge });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Failed to create challenge", error: err.message });
+  }
+};
+
+const updateAdminChallenge = async (req, res) => {
+  try {
+    const challenge = await Challenge.findByIdAndUpdate(
+      req.params.challengeId,
+      req.body,
+      {
+        new: true,
+        runValidators: true,
+      },
+    );
+
+    if (!challenge) {
+      return res.status(404).json({ message: "Challenge not found" });
+    }
+
+    res.json({ challenge });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Failed to update challenge", error: err.message });
+  }
+};
+
+const deleteAdminChallenge = async (req, res) => {
+  try {
+    const challenge = await Challenge.findByIdAndDelete(req.params.challengeId);
+
+    if (!challenge) {
+      return res.status(404).json({ message: "Challenge not found" });
+    }
+
+    res.json({ message: "Challenge deleted" });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Failed to delete challenge", error: err.message });
+  }
+};
+
+const getAllClans = async (req, res) => {
+  try {
+    const clans = await Clan.find()
+      .sort({ createdAt: -1 })
+      .populate("owner", "username firstName lastName")
+      .populate("members", "username firstName lastName xp level")
+      .lean();
+
+    res.json({ clans });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Failed to fetch clans", error: err.message });
+  }
+};
+
+const deleteClan = async (req, res) => {
+  try {
+    const clan = await Clan.findByIdAndDelete(req.params.clanId);
+
+    if (!clan) {
+      return res.status(404).json({ message: "Clan not found" });
+    }
+
+    res.json({ message: "Clan deleted" });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Failed to delete clan", error: err.message });
   }
 };
 
@@ -232,4 +360,10 @@ module.exports = {
   updateUser,
   getUserActivity,
   getAdminStats,
+  getAllChallenges,
+  createAdminChallenge,
+  updateAdminChallenge,
+  deleteAdminChallenge,
+  getAllClans,
+  deleteClan,
 };

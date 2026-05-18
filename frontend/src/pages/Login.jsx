@@ -126,7 +126,13 @@ const Login = ({ mode = "login" }) => {
                     // Redirect to profile completion if needed, otherwise dashboard
                     setTimeout(
                         () =>
-                            navigate(profileComplete ? "/dashboard" : "/complete-profile"),
+                            navigate(
+                                userData.isAdmin
+                                    ? "/admin"
+                                    : profileComplete
+                                        ? "/dashboard"
+                                        : "/complete-profile",
+                            ),
                         300
                     );
                 } else {
@@ -137,173 +143,173 @@ const Login = ({ mode = "login" }) => {
                 }
             }
         } catch (err) {
-        const message = err.response?.data?.message || err.message || "An error occurred";
-        setError(message);
-    } finally {
-        setLoading(false);
-    }
-};
+            const message = err.response?.data?.message || err.message || "An error occurred";
+            setError(message);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-const handleQuickLogin = (credentials) => {
-    setFormData((prev) => ({
-        ...prev,
-        ...credentials,
-    }));
-    setError("");
-};
+    const handleQuickLogin = (credentials) => {
+        setFormData((prev) => ({
+            ...prev,
+            ...credentials,
+        }));
+        setError("");
+    };
 
-return (
-    <section className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-lg items-center px-4 py-12">
-        <div className="w-full rounded-3xl border border-border bg-dark-gray p-8 shadow-2xl">
-            <PageHeader
-                eyebrow={isRegister ? "Create account" : "Welcome back"}
-                title={isRegister ? "Join LeetQuest" : "Log in to LeetQuest"}
-                description={
-                    isRegister
-                        ? "Start tracking streaks, XP, and progress."
-                        : "Continue your gamified LeetCode journey."
-                }
-            />
+    return (
+        <section className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-lg items-center px-4 py-12">
+            <div className="w-full rounded-3xl border border-border bg-dark-gray p-8 shadow-2xl">
+                <PageHeader
+                    eyebrow={isRegister ? "Create account" : "Welcome back"}
+                    title={isRegister ? "Join LeetQuest" : "Log in to LeetQuest"}
+                    description={
+                        isRegister
+                            ? "Start tracking streaks, XP, and progress."
+                            : "Continue your gamified LeetCode journey."
+                    }
+                />
 
-            <form ref={formRef} onSubmit={handleSubmit} className="mt-8 space-y-4">
-                {isRegister && (
+                <form ref={formRef} onSubmit={handleSubmit} className="mt-8 space-y-4">
+                    {isRegister && (
+                        <input
+                            type="text"
+                            name="username"
+                            placeholder="Username"
+                            value={formData.username}
+                            onChange={handleChange}
+                            onFocus={handleInputFocus}
+                            onBlur={handleInputBlur}
+                            disabled={loading}
+                            ref={(el) => (inputsRef.current[0] = el)}
+                            className="w-full rounded-xl border border-border bg-dark px-4 py-3 text-text-main outline-none disabled:opacity-50 transition-all"
+                        />
+                    )}
+                    {isRegister && (
+                        <div className="grid gap-4 sm:grid-cols-2">
+                            <input
+                                type="text"
+                                name="firstName"
+                                placeholder="First name"
+                                value={formData.firstName}
+                                onChange={handleChange}
+                                onFocus={handleInputFocus}
+                                onBlur={handleInputBlur}
+                                disabled={loading}
+                                className="w-full rounded-xl border border-border bg-dark px-4 py-3 text-text-main outline-none disabled:opacity-50 transition-all"
+                            />
+                            <input
+                                type="text"
+                                name="lastName"
+                                placeholder="Last name"
+                                value={formData.lastName}
+                                onChange={handleChange}
+                                onFocus={handleInputFocus}
+                                onBlur={handleInputBlur}
+                                disabled={loading}
+                                className="w-full rounded-xl border border-border bg-dark px-4 py-3 text-text-main outline-none disabled:opacity-50 transition-all"
+                            />
+                        </div>
+                    )}
                     <input
-                        type="text"
-                        name="username"
-                        placeholder="Username"
-                        value={formData.username}
+                        type="email"
+                        name="email"
+                        placeholder="Email"
+                        value={formData.email}
                         onChange={handleChange}
                         onFocus={handleInputFocus}
                         onBlur={handleInputBlur}
                         disabled={loading}
-                        ref={(el) => (inputsRef.current[0] = el)}
+                        ref={(el) => (inputsRef.current[isRegister ? 1 : 0] = el)}
                         className="w-full rounded-xl border border-border bg-dark px-4 py-3 text-text-main outline-none disabled:opacity-50 transition-all"
                     />
-                )}
-                {isRegister && (
-                    <div className="grid gap-4 sm:grid-cols-2">
-                        <input
-                            type="text"
-                            name="firstName"
-                            placeholder="First name"
-                            value={formData.firstName}
-                            onChange={handleChange}
-                            onFocus={handleInputFocus}
-                            onBlur={handleInputBlur}
-                            disabled={loading}
-                            className="w-full rounded-xl border border-border bg-dark px-4 py-3 text-text-main outline-none disabled:opacity-50 transition-all"
-                        />
-                        <input
-                            type="text"
-                            name="lastName"
-                            placeholder="Last name"
-                            value={formData.lastName}
-                            onChange={handleChange}
-                            onFocus={handleInputFocus}
-                            onBlur={handleInputBlur}
-                            disabled={loading}
-                            className="w-full rounded-xl border border-border bg-dark px-4 py-3 text-text-main outline-none disabled:opacity-50 transition-all"
-                        />
-                    </div>
-                )}
-                <input
-                    type="email"
-                    name="email"
-                    placeholder="Email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    onFocus={handleInputFocus}
-                    onBlur={handleInputBlur}
-                    disabled={loading}
-                    ref={(el) => (inputsRef.current[isRegister ? 1 : 0] = el)}
-                    className="w-full rounded-xl border border-border bg-dark px-4 py-3 text-text-main outline-none disabled:opacity-50 transition-all"
-                />
-                <input
-                    type="password"
-                    name="password"
-                    placeholder="Password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    onFocus={handleInputFocus}
-                    onBlur={handleInputBlur}
-                    disabled={loading}
-                    ref={(el) => (inputsRef.current[isRegister ? 2 : 1] = el)}
-                    className="w-full rounded-xl border border-border bg-dark px-4 py-3 text-text-main outline-none disabled:opacity-50 transition-all"
-                />
+                    <input
+                        type="password"
+                        name="password"
+                        placeholder="Password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        onFocus={handleInputFocus}
+                        onBlur={handleInputBlur}
+                        disabled={loading}
+                        ref={(el) => (inputsRef.current[isRegister ? 2 : 1] = el)}
+                        className="w-full rounded-xl border border-border bg-dark px-4 py-3 text-text-main outline-none disabled:opacity-50 transition-all"
+                    />
 
-                {/* Forgot Password Link (Login Only) */}
-                {!isRegister && (
-                    <div className="text-right">
-                        <Link
-                            to="/forgot-password"
-                            className="text-sm text-text-secondary hover:text-lc-purple transition-colors"
+                    {/* Forgot Password Link (Login Only) */}
+                    {!isRegister && (
+                        <div className="text-right">
+                            <Link
+                                to="/forgot-password"
+                                className="text-sm text-text-secondary hover:text-lc-purple transition-colors"
+                            >
+                                Forgot password?
+                            </Link>
+                        </div>
+                    )}
+
+                    {error && (
+                        <div className="rounded-xl bg-red-500 bg-opacity-10 px-4 py-3 text-sm text-red-400">
+                            {error}
+                        </div>
+                    )}
+
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        onMouseEnter={handleButtonHover}
+                        onMouseLeave={handleButtonHoverOut}
+                        className="w-full rounded-xl bg-orange px-4 py-3 font-semibold text-dark hover:bg-orange-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 active:scale-95"
+                    >
+                        {loading
+                            ? "Loading..."
+                            : isRegister
+                                ? "Create account"
+                                : "Log in"}
+                    </button>
+
+                    {/* Quick Login Buttons for Development */}
+                    <div className="mt-6 space-y-3 border-t border-border pt-6">
+                        <p className="text-xs text-text-muted">💡 Dev Shortcuts:</p>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                handleQuickLogin({
+                                    username: "devansh",
+                                    email: "devansh@gmail.com",
+                                    password: "devakhmk",
+                                });
+                            }}
+                            className="w-full rounded-xl border border-orange bg-transparent px-4 py-2 text-sm font-medium text-orange hover:bg-orange/10 transition-all"
                         >
-                            Forgot password?
-                        </Link>
+                            Login as Admin
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                handleQuickLogin({
+                                    username: "testuser",
+                                    email: "test@leetquest.com",
+                                    password: "test123",
+                                });
+                            }}
+                            className="w-full rounded-xl border border-green bg-transparent px-4 py-2 text-sm font-medium text-green hover:bg-green/10 transition-all"
+                        >
+                            Login as Test User
+                        </button>
                     </div>
-                )}
+                </form>
 
-                {error && (
-                    <div className="rounded-xl bg-red-500 bg-opacity-10 px-4 py-3 text-sm text-red-400">
-                        {error}
-                    </div>
-                )}
-
-                <button
-                    type="submit"
-                    disabled={loading}
-                    onMouseEnter={handleButtonHover}
-                    onMouseLeave={handleButtonHoverOut}
-                    className="w-full rounded-xl bg-orange px-4 py-3 font-semibold text-dark hover:bg-orange-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 active:scale-95"
-                >
-                    {loading
-                        ? "Loading..."
-                        : isRegister
-                            ? "Create account"
-                            : "Log in"}
-                </button>
-
-                {/* Quick Login Buttons for Development */}
-                <div className="mt-6 space-y-3 border-t border-border pt-6">
-                    <p className="text-xs text-text-muted">💡 Dev Shortcuts:</p>
-                    <button
-                        type="button"
-                        onClick={() => {
-                            handleQuickLogin({
-                                username: "admin",
-                                email: "admin@leetquest.com",
-                                password: "admin123",
-                            });
-                        }}
-                        className="w-full rounded-xl border border-orange bg-transparent px-4 py-2 text-sm font-medium text-orange hover:bg-orange/10 transition-all"
-                    >
-                        Login as Admin
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => {
-                            handleQuickLogin({
-                                username: "testuser",
-                                email: "test@leetquest.com",
-                                password: "test123",
-                            });
-                        }}
-                        className="w-full rounded-xl border border-green bg-transparent px-4 py-2 text-sm font-medium text-green hover:bg-green/10 transition-all"
-                    >
-                        Login as Test User
-                    </button>
-                </div>
-            </form>
-
-            <p className="mt-6 text-sm text-text-muted">
-                {isRegister ? "Already have an account?" : "Need an account?"}{" "}
-                <Link to={isRegister ? "/login" : "/register"} className="text-orange hover:underline">
-                    {isRegister ? "Log in" : "Register"}
-                </Link>
-            </p>
-        </div>
-    </section>
-);
+                <p className="mt-6 text-sm text-text-muted">
+                    {isRegister ? "Already have an account?" : "Need an account?"}{" "}
+                    <Link to={isRegister ? "/login" : "/register"} className="text-orange hover:underline">
+                        {isRegister ? "Log in" : "Register"}
+                    </Link>
+                </p>
+            </div>
+        </section>
+    );
 };
 
 export default Login;

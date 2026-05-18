@@ -11,14 +11,29 @@ const {
   updateUser,
   getUserActivity,
   getAdminStats,
+  getAllChallenges,
+  createAdminChallenge,
+  updateAdminChallenge,
+  deleteAdminChallenge,
+  getAllClans,
+  deleteClan,
 } = require("../controllers/adminController");
-
 // All admin routes require authentication and admin role
 router.use(protect);
 router.use(adminMiddleware);
 
 // Admin dashboard stats
 router.get("/stats", getAdminStats);
+
+// Challenge management
+router.get("/challenges", getAllChallenges);
+router.post("/challenges", createAdminChallenge);
+router.patch("/challenges/:challengeId", updateAdminChallenge);
+router.delete("/challenges/:challengeId", deleteAdminChallenge);
+
+// Clan management
+router.get("/clans", getAllClans);
+router.delete("/clans/:clanId", deleteClan);
 
 // User management
 router.get("/users", getAllUsers);

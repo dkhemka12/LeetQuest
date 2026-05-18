@@ -33,10 +33,8 @@ const PublicProfile = () => {
             setLoading(true);
             setError("");
             const data = await getPublicProfile(username);
-            console.log("Public profile data:", data);
             setProfile(data);
         } catch (err) {
-            console.error("Public profile error:", err);
             setError(err.response?.data?.message || "Failed to load public profile");
             setProfile(null);
         } finally {

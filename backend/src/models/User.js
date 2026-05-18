@@ -33,6 +33,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    preferredTopics: [
+      {
+        type: String,
+        trim: true,
+      },
+    ],
     xp: {
       type: Number,
       default: 0,

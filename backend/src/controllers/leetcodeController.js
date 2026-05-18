@@ -77,7 +77,6 @@ const syncLeetcodeData = async (req, res) => {
 
           const key = titleSlug || title;
           if (existingSet.has(key)) {
-            console.log(`Skipping duplicate activity: ${title}`);
             return null;
           }
 
@@ -126,8 +125,6 @@ const clearAndResyncLeetcode = async (req, res) => {
       user: req.user._id,
       topic: "LeetCode",
     });
-
-    console.log(`Cleared activities for user ${req.user._id}`);
 
     // Now perform fresh sync
     const data = await leetcodeService.fetchLeetcodeSnapshot(leetcodeUsername);

@@ -12,6 +12,8 @@ import Analytics from "./pages/Analytics";
 import Challenges from "./pages/Challenges";
 import Friends from "./pages/Friends";
 import Clans from "./pages/Clans";
+import SendMessage from "./pages/SendMessage";
+import Feedback from "./pages/Feedback";
 import Profile from "./pages/Profile";
 import History from "./pages/History";
 import PublicProfile from "./pages/PublicProfile";
@@ -31,6 +33,8 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:resetToken" element={<ResetPassword />} />
         <Route element={<MainLayout />}>
+          <Route path="/send-message" element={<SendMessage />} />
+          <Route path="/feedback" element={<Feedback />} />
           <Route path="/user/:username" element={<PublicProfile />} />
         </Route>
         <Route
@@ -62,6 +66,8 @@ function App() {
         >
           <Route path="" element={<Admin />} />
           <Route path="users" element={<Admin />} />
+          <Route path="challenges" element={<Admin />} />
+          <Route path="support" element={<Admin />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

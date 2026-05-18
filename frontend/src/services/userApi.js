@@ -78,6 +78,49 @@ export const getClans = async () => {
   }
 };
 
+export const getChallenges = async () => {
+  try {
+    const response = await api.get("/challenges");
+    return response.data.challenges || [];
+  } catch (error) {
+    console.error("Failed to fetch challenges:", error);
+    throw error;
+  }
+};
+
+export const getDailyChallenge = async () => {
+  try {
+    const response = await api.get("/challenges/daily");
+    return response.data.challenge || null;
+  } catch (error) {
+    console.error("Failed to fetch daily challenge:", error);
+    throw error;
+  }
+};
+
+export const createChallenge = async (payload) => {
+  try {
+    const response = await api.post("/challenges", payload);
+    return response.data.challenge || null;
+  } catch (error) {
+    console.error("Failed to create challenge:", error);
+    throw error;
+  }
+};
+
+export const updateChallengeStatus = async (challengeId, payload) => {
+  try {
+    const response = await api.patch(
+      `/challenges/${challengeId}/status`,
+      payload,
+    );
+    return response.data.challenge || null;
+  } catch (error) {
+    console.error("Failed to update challenge:", error);
+    throw error;
+  }
+};
+
 export const getMyClan = async () => {
   try {
     const response = await api.get("/users/clans/me");

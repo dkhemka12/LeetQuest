@@ -18,6 +18,24 @@ const Profile = () => {
         firstName: user?.firstName || "",
         lastName: user?.lastName || "",
     });
+    const [topicDraft, setTopicDraft] = useState(user?.preferredTopics || []);
+
+    const topicOptions = [
+        "Array",
+        "Strings",
+        "Hash Table",
+        "Linked List",
+        "Stack",
+        "Queue",
+        "Tree",
+        "Graph",
+        "Dynamic Programming",
+        "Binary Search",
+        "Greedy",
+        "Sliding Window",
+        "Two Pointers",
+        "Backtracking",
+    ];
 
     // Load full profile on mount
     useEffect(() => {
@@ -29,6 +47,7 @@ const Profile = () => {
         try {
             const data = await getUserProfile();
             setProfile(data);
+            setTopicDraft(data?.preferredTopics || []);
             setError("");
         } catch (err) {
             setError("Failed to load profile");
@@ -117,6 +136,29 @@ const Profile = () => {
             setError("");
         } catch (err) {
             setError(err.response?.data?.message || "Failed to clear and resync");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleSaveTopics = async () => {
+        try {
+            setLoading(true);
+            const updated = await updateUserProfile({
+                preferredTopics: topicDraft,
+            });
+            const token = localStorage.getItem("authToken");
+            const nextUser = token ? { ...updated, token } : updated;
+            setProfile(nextUser);
+            setUser(nextUser);
+            if (token) {
+                window.localStorage.setItem("leetquest-user", JSON.stringify(nextUser));
+            }
+            setSuccess("Practice topics updated!");
+            setTimeout(() => setSuccess(""), 3000);
+            setError("");
+        } catch (err) {
+            setError(err.response?.data?.message || "Failed to update practice topics");
         } finally {
             setLoading(false);
         }
@@ -328,6 +370,49 @@ const Profile = () => {
                                 )}
                             </div>
                         )}
+                    </div>
+
+                    <div className="rounded-2xl border border-border bg-dark-gray p-6">
+                        <h3 className="mb-4 text-sm uppercase tracking-[0.2em] text-text-muted">Practice Topics</h3>
+                        <p className="mb-4 text-sm text-text-muted">
+                            Pick the topics you want the daily challenge engine to pull from.
+                        </p>
+                        <div className="grid gap-2 sm:grid-cols-2">
+                            {topicOptions.map((topic) => {
+                                const checked = topicDraft.includes(topic);
+                                return (
+                                    <label
+                                        key={topic}
+                                        className={`flex cursor-pointer items-center gap-3 rounded-xl border px-3 py-2.5 text-sm transition-colors ${checked
+                                                ? "border-orange bg-orange/10 text-text-main"
+                                                : "border-border bg-dark text-text-muted hover:border-orange/50"
+                                            }`}
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            checked={checked}
+                                            onChange={() => {
+                                                setTopicDraft((current) =>
+                                                    current.includes(topic)
+                                                        ? current.filter((item) => item !== topic)
+                                                        : [...current, topic],
+                                                );
+                                            }}
+                                            className="h-4 w-4 accent-orange"
+                                        />
+                                        <span>{topic}</span>
+                                    </label>
+                                );
+                            })}
+                        </div>
+                        <button
+                            type="button"
+                            onClick={handleSaveTopics}
+                            disabled={loading}
+                            className="mt-4 w-full rounded-xl bg-orange px-4 py-3 text-sm font-semibold text-dark transition-colors hover:bg-orange-hover disabled:opacity-60"
+                        >
+                            Save preferred topics
+                        </button>
                     </div>
                 </div>
 

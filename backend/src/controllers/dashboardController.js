@@ -12,8 +12,8 @@ const getDashboardSummary = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const leaderboard = await User.find({ isBanned: false })
-      .select("username xp level streak")
+    const leaderboard = await User.find({ isBanned: false, isAdmin: false })
+      .select("username xp level streak isAdmin")
       .sort({ xp: -1 })
       .limit(5)
       .lean();

@@ -3,6 +3,21 @@ import api from "./api";
 // Get admin dashboard stats
 export const getAdminStats = () => api.get("/admin/stats");
 
+export const getAdminChallenges = () => api.get("/admin/challenges");
+
+export const createAdminChallenge = (data) =>
+  api.post("/admin/challenges", data);
+
+export const updateAdminChallenge = (challengeId, data) =>
+  api.patch(`/admin/challenges/${challengeId}`, data);
+
+export const deleteAdminChallenge = (challengeId) =>
+  api.delete(`/admin/challenges/${challengeId}`);
+
+export const getAdminClans = () => api.get("/admin/clans");
+
+export const deleteAdminClan = (clanId) => api.delete(`/admin/clans/${clanId}`);
+
 // Get all users
 export const getAllUsers = (page = 1, limit = 20, search = "") =>
   api.get("/admin/users", {
