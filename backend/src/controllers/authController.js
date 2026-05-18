@@ -284,16 +284,19 @@ const forgotPassword = async (req, res) => {
     user.passwordResetExpiry = resetExpiry;
     await user.save();
 
-    // Create reset link
-    const frontendBaseUrl = process.env.FRONTEND_URL || req.get("origin") || "";
+    // Create reset link.
+    const frontendBaseUrl = process.env.FRONTEND_URL;
+
+    if (!frontendBaseUrl) {
+      return res.status(500).json({
+        message: "FRONTEND_URL is not configured",
+      });
+    }
+
     const resetLink = `${frontendBaseUrl.replace(/\/$/, "")}/reset-password/${resetToken}`;
 
-    // Send the email in the background so the request does not wait on SMTP.
-    setImmediate(() => {
-      sendPasswordResetEmail(email, resetToken, resetLink).catch((err) => {
-        console.error("Failed to send reset email:", err);
-      });
-    });
+    // Send the email before responding so deployment runtimes do not drop it.
+    await sendPasswordResetEmail(email, resetToken, resetLink);
 
     res.status(200).json({
       message: "Password reset link sent to your email",
