@@ -302,7 +302,22 @@ const forgotPassword = async (req, res) => {
       message: "Password reset link sent to your email",
     });
   } catch (error) {
-    console.error(error);
+    console.error("Forgot password failed:", error);
+
+    const isEmailDeliveryFailure =
+      error.message?.includes("Email service is not configured") ||
+      error.message?.includes("Failed to send password reset email") ||
+      error.code === "EAUTH" ||
+      error.code === "ECONNECTION" ||
+      error.code === "ETIMEDOUT";
+
+    if (isEmailDeliveryFailure) {
+      return res.status(502).json({
+        message:
+          "Password reset email could not be sent from the deployed server. Check EMAIL_USER, EMAIL_PASSWORD, and outbound SMTP access.",
+      });
+    }
+
     res.status(500).json({ message: "Server error" });
   }
 };
