@@ -1,16 +1,15 @@
 const nodemailer = require("nodemailer");
 
-const emailUser = process.env.EMAIL_USER;
-const emailPassword = process.env.EMAIL_PASSWORD;
+const EMAIL_USER = process.env.EMAIL_USER;
+const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD;
 
-// Create transporter using explicit Gmail SMTP settings so failures surface quickly.
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 587,
   secure: false,
   auth: {
-    user: emailUser,
-    pass: emailPassword, // Gmail App Password (not regular password)
+    user: EMAIL_USER,
+    pass: EMAIL_PASSWORD,
   },
   connectionTimeout: 10000,
   greetingTimeout: 10000,
@@ -18,8 +17,10 @@ const transporter = nodemailer.createTransport({
 });
 
 const assertEmailConfig = () => {
-  if (!emailUser || !emailPassword) {
-    throw new Error("Email service is not configured");
+  if (!EMAIL_USER || !EMAIL_PASSWORD) {
+    throw new Error(
+      "Email service is not configured. Set EMAIL_USER and EMAIL_PASSWORD.",
+    );
   }
 };
 
@@ -65,7 +66,7 @@ const sendOTPEmail = async (email, otp) => {
     `;
 
     await transporter.sendMail({
-      from: emailUser,
+      from: EMAIL_USER,
       to: email,
       subject: "Verify your LeetQuest email - OTP",
       html: htmlContent,
@@ -117,7 +118,7 @@ const sendPasswordResetEmail = async (email, resetToken, resetLink) => {
     `;
 
     await transporter.sendMail({
-      from: emailUser,
+      from: EMAIL_USER,
       to: email,
       subject: "Reset your LeetQuest password",
       html: htmlContent,
@@ -228,7 +229,7 @@ const sendSupportRequestEmail = async ({ to, replyTo, supportRequest }) => {
     `;
 
     await transporter.sendMail({
-      from: emailUser,
+      from: EMAIL_USER,
       to,
       replyTo: replyTo || supportRequest.email,
       subject: `[LeetQuest] New ${supportRequest.type === "feedback" ? "feedback" : "message"}`,

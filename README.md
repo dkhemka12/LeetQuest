@@ -227,10 +227,12 @@ Set these variables in your hosting provider:
 - `MONGO_URI` - production MongoDB connection string
 - `JWT_SECRET` - strong production secret
 - `FRONTEND_URL` - your deployed frontend URL, for example `https://leetquest.example.com`
-- `EMAIL_USER` - Gmail address used to send OTP and reset emails
-- `EMAIL_PASSWORD` - Gmail app password, not your regular account password
+- `EMAIL_USER` - Gmail account used to send emails
+- `EMAIL_PASSWORD` - Gmail app password
 - `ADMIN_EMAIL` - inbox that receives support messages and feedback
 - `ADMIN_PASSWORD` - admin password used by the seeder
+
+Note: if you are deploying with Gmail SMTP, use a Gmail app password for `EMAIL_PASSWORD` rather than your normal account password.
 
 ### Frontend Environment
 
@@ -243,9 +245,9 @@ Set this variable in your frontend hosting provider:
 1. Deploy the backend and confirm it serves `/api/health`.
 2. Deploy the frontend and point `VITE_API_URL` to the backend.
 3. Set `FRONTEND_URL` to the public frontend domain so password reset links are correct.
-4. Use a Gmail app password for `EMAIL_PASSWORD`.
-5. Check the hosting logs if reset emails do not arrive, because SMTP failures are reported there.
-6. If your hosting provider blocks Gmail SMTP, switch the mail settings to a transactional provider such as SendGrid, Mailgun, or Resend.
+4. Set `EMAIL_USER` and `EMAIL_PASSWORD` on the backend host using a Gmail app password.
+5. Check the hosting logs if reset emails do not arrive — Gmail SMTP errors will be logged by the backend.
+6. If Gmail blocks the send, switch to another SMTP provider later.
 
 ## Data Flow
 
