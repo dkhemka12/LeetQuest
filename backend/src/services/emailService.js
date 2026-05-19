@@ -1,4 +1,5 @@
 const nodemailer = require("nodemailer");
+const dns = require("dns");
 
 const EMAIL_USER = process.env.EMAIL_USER;
 const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD;
@@ -8,6 +9,9 @@ const transporter = nodemailer.createTransport({
   port: 587,
   secure: false,
   family: 4,
+  dnsLookup(hostname, options, callback) {
+    return dns.lookup(hostname, { family: 4 }, callback);
+  },
   auth: {
     user: EMAIL_USER,
     pass: EMAIL_PASSWORD,
