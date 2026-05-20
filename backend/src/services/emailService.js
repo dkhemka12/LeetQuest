@@ -1,31 +1,45 @@
-const nodemailer = require("nodemailer");
-const dns = require("dns");
-
-const EMAIL_USER = process.env.EMAIL_USER;
-const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD;
-
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  family: 4,
-  dnsLookup(hostname, options, callback) {
-    return dns.lookup(hostname, { family: 4 }, callback);
-  },
-  auth: {
-    user: EMAIL_USER,
-    pass: EMAIL_PASSWORD,
-  },
-  connectionTimeout: 10000,
-  greetingTimeout: 10000,
-  socketTimeout: 10000,
-});
+const axios = require("axios");
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const RESEND_FROM =
+  process.env.RESEND_FROM ||
+  process.env.VITE_CONTACT_EMAIL ||
+  "no-reply@leetquest.example";
 
 const assertEmailConfig = () => {
-  if (!EMAIL_USER || !EMAIL_PASSWORD) {
-    throw new Error(
-      "Email service is not configured. Set EMAIL_USER and EMAIL_PASSWORD.",
+  if (!RESEND_API_KEY) {
+    throw new Error("Email service is not configured. Set RESEND_API_KEY.");
+  }
+};
+
+const sendEmail = async ({ to, subject, html, replyTo }) => {
+  if (!RESEND_API_KEY) {
+    throw new Error("Resend API key is not configured");
+  }
+
+  try {
+    const payload = {
+      from: RESEND_FROM,
+      to,
+      subject,
+      html,
+    };
+    if (replyTo) payload.reply_to = replyTo;
+
+    await axios.post("https://api.resend.com/emails", payload, {
+      headers: {
+        Authorization: `Bearer ${RESEND_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      timeout: 15000,
+    });
+
+    return true;
+  } catch (err) {
+    console.error(
+      "Resend HTTP send error:",
+      err?.response?.data || err.message || err,
     );
+    throw new Error("Failed to send email via Resend");
   }
 };
 
@@ -70,8 +84,7 @@ const sendOTPEmail = async (email, otp) => {
       </html>
     `;
 
-    await transporter.sendMail({
-      from: EMAIL_USER,
+    await sendEmail({
       to: email,
       subject: "Verify your LeetQuest email - OTP",
       html: htmlContent,
@@ -122,8 +135,7 @@ const sendPasswordResetEmail = async (email, resetToken, resetLink) => {
       </html>
     `;
 
-    await transporter.sendMail({
-      from: EMAIL_USER,
+    await sendEmail({
       to: email,
       subject: "Reset your LeetQuest password",
       html: htmlContent,
@@ -233,12 +245,11 @@ const sendSupportRequestEmail = async ({ to, replyTo, supportRequest }) => {
       </html>
     `;
 
-    await transporter.sendMail({
-      from: EMAIL_USER,
+    await sendEmail({
       to,
-      replyTo: replyTo || supportRequest.email,
       subject: `[LeetQuest] New ${supportRequest.type === "feedback" ? "feedback" : "message"}`,
       html: htmlContent,
+      replyTo: replyTo || supportRequest.email,
     });
 
     return true;
